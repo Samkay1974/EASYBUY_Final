@@ -1,0 +1,213 @@
+/* styles.css - EasyBuy Platform Styling */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.header {
+    width: 100%;
+    padding: 15px 30px;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0056b3;
+}
+
+.nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    font-size: 16px;
+    color: #333;
+}
+
+.nav .btn-primary {
+    background-color: #0056b3;
+    color: #fff !important;
+    padding: 5px 15px;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+.hero {
+    height: 70vh;
+    background: linear-gradient(rgba(0, 86, 179, 0.7), rgba(0, 86, 179, 0.7)), url('wholesale-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: #fff;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 20px;
+    margin-bottom: 25px;
+}
+
+.hero-btn {
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.features {
+    padding: 50px 20px;
+    background-color: #fff;
+    text-align: center;
+}
+
+.features h2 {
+    font-size: 32px;
+    margin-bottom: 30px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 0 40px;
+}
+
+.feature-item {
+    background-color: #f1f7ff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-section {
+    display: flex;
+    justify-content: center;
+    padding: 50px 20px;
+}
+
+.form-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Radio group: display radio options horizontally and with spacing */
+.radio-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.radio-group label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: normal;
+}
+.radio-group input[type="radio"] {
+    width: auto;
+    height: auto;
+}
+
+.btn-primary {
+    background-color: #0056b3;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #003f82;
+}
+
+.alt-link {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.footer {
+    padding: 20px;
+    background-color: #eee;
+    text-align: center;
+    margin-top: 50px;
+    font-size: 14px;
+}
+
+/* Modal enhancements for platform messaging */
+.modal-content.border-0.shadow-sm {
+    border-radius: 12px;
+}
+
+#messageModalHeader {
+    gap: .5rem;
+}
+
+#messageModalIcon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.modal-success #messageModalIcon {
+    background-color: #e6f5ec;
+}
+.modal-success #messageModalIcon svg {
+    color: #198754;
+}
+
+.modal-error #messageModalIcon {
+    background-color: #fdecea;
+}
+.modal-error #messageModalIcon svg {
+    color: #dc3545;
+}
+
+#messageModalBody {
+    font-size: 16px;
+}
