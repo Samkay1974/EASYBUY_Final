@@ -37,14 +37,32 @@ $wholesale_price = floatval($_POST['wholesale_price'] ?? 0);
 // image optional
 $product_image = null;
 if (!empty($_FILES['product_image']['name'])) {
+    // Check for upload errors
+    if ($_FILES['product_image']['error'] !== UPLOAD_ERR_OK) {
+        $upload_errors = [
+            UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize',
+            UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE',
+            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
+            UPLOAD_ERR_NO_FILE => 'No file was uploaded',
+            UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
+            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
+            UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload'
+        ];
+        $error_msg = $upload_errors[$_FILES['product_image']['error']] ?? 'Unknown upload error';
+        echo json_encode(['status'=>'error','message'=>'Image upload error: ' . $error_msg]);
+        exit;
+    }
+    
     $upload_result = upload_file($_FILES['product_image'], 'products');
     
     if ($upload_result['success']) {
         $product_image = $upload_result['filename'];
     } else {
-        // For edit, if upload fails, we can continue without updating the image
-        // But log the error
-        error_log("Image upload failed during product edit: " . ($upload_result['error'] ?? 'Unknown error'));
+        // For edit, if upload fails, return error so user knows
+        $error_msg = $upload_result['error'] ?? 'Image upload failed';
+        error_log("Image upload failed during product edit: " . $error_msg);
+        echo json_encode(['status'=>'error','message'=>'Failed to upload image: ' . $error_msg]);
+        exit;
     }
 }
 

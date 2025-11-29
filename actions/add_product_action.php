@@ -46,6 +46,22 @@ $wholesale_price = floatval($_POST['wholesale_price']);
 // handle image upload
 $product_image = null;
 if (!empty($_FILES['product_image']['name'])) {
+    // Check for upload errors
+    if ($_FILES['product_image']['error'] !== UPLOAD_ERR_OK) {
+        $upload_errors = [
+            UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize',
+            UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE',
+            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
+            UPLOAD_ERR_NO_FILE => 'No file was uploaded',
+            UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
+            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
+            UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload'
+        ];
+        $error_msg = $upload_errors[$_FILES['product_image']['error']] ?? 'Unknown upload error';
+        echo json_encode(['status'=>'error','message'=>'Image upload error: ' . $error_msg]);
+        exit;
+    }
+    
     $upload_result = upload_file($_FILES['product_image'], 'products');
     
     if ($upload_result['success']) {
