@@ -32,6 +32,12 @@ async function submitProductForm() {
             method: 'POST',
             body: formData
         });
+        
+        // Check if response is OK
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
         const json = await res.json();
         
         if (json.status === 'success') {
@@ -77,10 +83,19 @@ async function submitProductForm() {
         }
     } catch (error) {
         console.error('Error:', error);
+        let errorMessage = 'An error occurred. Please try again.';
+        
+        // Handle network errors specifically
+        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError'))) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (error.message && error.message.includes('HTTP error')) {
+            errorMessage = 'Server error. Please try again or contact support.';
+        }
+        
         if (typeof Swal !== 'undefined') {
-            Swal.fire('Error!', 'An error occurred. Please try again.', 'error');
+            Swal.fire('Error!', errorMessage, 'error');
         } else {
-            alert('An error occurred. Please try again.');
+            alert(errorMessage);
         }
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -144,6 +159,12 @@ async function submitEditForm() {
             method: 'POST',
             body: formData
         });
+        
+        // Check if response is OK
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
         const json = await res.json();
         
         if (json.status === 'success') {
@@ -168,10 +189,19 @@ async function submitEditForm() {
         }
     } catch (error) {
         console.error('Error:', error);
+        let errorMessage = 'An error occurred. Please try again.';
+        
+        // Handle network errors specifically
+        if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError'))) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (error.message && error.message.includes('HTTP error')) {
+            errorMessage = 'Server error. Please try again or contact support.';
+        }
+        
         if (typeof Swal !== 'undefined') {
-            Swal.fire('Error!', 'An error occurred. Please try again.', 'error');
+            Swal.fire('Error!', errorMessage, 'error');
         } else {
-            alert('An error occurred. Please try again.');
+            alert(errorMessage);
         }
         if (submitBtn) {
             submitBtn.disabled = false;

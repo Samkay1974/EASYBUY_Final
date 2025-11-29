@@ -142,10 +142,11 @@ function upload_file($file, $subdirectory = 'products') {
             $debugInfo[] = "$normalized ($exists, $writable, perms: $perms)";
         }
         error_log("Could not find or create base upload directory. Tried: " . implode(' | ', $debugInfo));
+        // Simplified error message without paths
         return [
             'success' => false, 
             'filename' => null, 
-            'error' => 'Could not access uploads directory. Please ensure the uploads folder exists at the project root and has write permissions (775 or 777).'
+            'error' => 'Could not access uploads directory. Please ensure the uploads folder exists at the project root and has write permissions (775 or 777). Check server error logs for detailed path information.'
         ];
     }
     
@@ -163,10 +164,11 @@ function upload_file($file, $subdirectory = 'products') {
             
             // Try with 0777 permissions as fallback
             if (!@mkdir($uploadDir, 0777, true)) {
+                // Don't include full path in user-facing error
                 return [
                     'success' => false, 
                     'filename' => null, 
-                    'error' => 'Failed to create upload directory: ' . $uploadDir . '. Please check directory permissions or create the directory manually.'
+                    'error' => 'Failed to create upload directory. Please create the uploads/products directory manually via FTP or cPanel File Manager and set permissions to 775 or 777.'
                 ];
             }
         }
@@ -174,10 +176,11 @@ function upload_file($file, $subdirectory = 'products') {
     
     // Check if directory exists
     if (!is_dir($uploadDir)) {
+        // Don't include full path in user-facing error
         return [
             'success' => false, 
             'filename' => null, 
-            'error' => 'Upload directory does not exist: ' . $uploadDir
+            'error' => 'Upload directory does not exist. Please create the uploads/products directory via FTP or cPanel File Manager.'
         ];
     }
     
@@ -194,10 +197,11 @@ function upload_file($file, $subdirectory = 'products') {
             if (!is_writable($uploadDir)) {
                 $currentPerms = substr(sprintf('%o', fileperms($uploadDir)), -4);
                 error_log("Upload directory is not writable: $uploadDir (current permissions: $currentPerms)");
+                // Don't include full path in user-facing error to avoid URL interpretation issues
                 return [
                     'success' => false, 
                     'filename' => null, 
-                    'error' => 'Upload directory is not writable: ' . $uploadDir . ' (current permissions: ' . $currentPerms . '). Please set directory permissions to 775 or 777.'
+                    'error' => 'Upload directory is not writable (current permissions: ' . $currentPerms . '). Please set the uploads/products directory permissions to 775 or 777 via FTP or cPanel File Manager.'
                 ];
             }
         }
@@ -219,10 +223,11 @@ function upload_file($file, $subdirectory = 'products') {
         $error = error_get_last();
         error_log("Failed to move uploaded file to $target. Error: " . ($error['message'] ?? 'Unknown'));
         error_log("Upload directory info - exists: " . (is_dir($uploadDir) ? 'yes' : 'no') . ", writable: " . (is_writable($uploadDir) ? 'yes' : 'no'));
+        // Don't include full path in user-facing error
         return [
             'success' => false, 
             'filename' => null, 
-            'error' => 'Failed to move uploaded file to: ' . $uploadDir . '. Check directory permissions and ensure PHP has write access.'
+            'error' => 'Failed to save uploaded file. Please check that the uploads/products directory exists and has write permissions (775 or 777).'
         ];
     }
 }
