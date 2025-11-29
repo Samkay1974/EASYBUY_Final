@@ -6,28 +6,26 @@ When deploying to the server, image uploads are handled automatically through th
 
 ### How It Works
 
-1. **On Localhost**: Images are uploaded directly to the `uploads/` directory (works as before)
+The system uses **direct file uploads** to the server's existing `uploads/` directory structure. This works the same way on both localhost and the server.
 
-2. **On Server**: 
-   - First attempts to upload via the server's upload endpoint at: `http://169.239.251.102:442/~samuel.ninson/upload.php`
-   - If that fails, falls back to direct upload (if directory has write permissions)
-   - If both fail, returns a clear error message
+1. **File Upload Process**:
+   - Files are validated (type, size, etc.)
+   - Unique filenames are generated (timestamp + random hash)
+   - Files are saved directly to `uploads/products/` directory
+   - The filename is stored in the database
+
+2. **Directory Structure**:
+   - Main uploads directory: `uploads/`
+   - Product images: `uploads/products/`
+   - The system automatically creates the `products` subdirectory if it doesn't exist
 
 ### Configuration
 
-The upload endpoint URL is configured in `settings/upload_config.php`:
+The upload directories are configured in `settings/upload_config.php`:
 ```php
-define('SERVER_UPLOAD_URL', 'http://169.239.251.102:442/~samuel.ninson/upload.php');
+define('UPLOADS_DIR', 'uploads/');
+define('PRODUCTS_UPLOAD_DIR', 'uploads/products/');
 ```
-
-If you need to change this URL, update it in `settings/upload_config.php`.
-
-### Manual Upload Fallback
-
-If automatic uploads fail on the server, you can:
-1. Upload images manually via: http://169.239.251.102:442/~samuel.ninson/upload.php
-2. Note the filename of the uploaded image
-3. The system will automatically use images in the `uploads/` directory
 
 ### Testing
 
@@ -39,8 +37,9 @@ After deployment, test image uploads by:
 ### Troubleshooting
 
 If uploads fail:
-1. Check that the `uploads/` directory exists and has proper permissions
-2. Verify the upload endpoint URL is correct
-3. Check server error logs for detailed error messages
-4. Ensure cURL is enabled on the server (required for server upload method)
+1. **Check directory permissions**: The `uploads/` directory and `uploads/products/` subdirectory must be writable by the web server
+2. **Check directory existence**: Ensure the `uploads/` directory exists in the project root
+3. **Check server error logs**: Look for detailed error messages about file uploads
+4. **Verify file types**: Only JPG, JPEG, PNG, GIF, and WEBP files are allowed
+5. **Check PHP upload settings**: Verify `upload_max_filesize` and `post_max_size` in php.ini are sufficient
 
