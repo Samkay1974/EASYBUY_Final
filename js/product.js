@@ -120,7 +120,7 @@ function loadProductForEdit(productId, productName, brandId, catId, moq, price, 
     const currentImageDiv = document.getElementById('currentImage');
     if (currentImageDiv) {
         if (image) {
-            currentImageDiv.innerHTML = `<p class="text-muted small">Current image: <img src="../uploads/products/${image}" style="max-width:100px;max-height:100px;object-fit:cover;border-radius:8px;" class="mt-2" onerror="this.style.display='none'"></p>`;
+            currentImageDiv.innerHTML = `<p class="text-muted small">Current image: <img src="../uploads/${image}" style="max-width:100px;max-height:100px;object-fit:cover;border-radius:8px;" class="mt-2" onerror="this.style.display='none'"></p>`;
         } else {
             currentImageDiv.innerHTML = '';
         }

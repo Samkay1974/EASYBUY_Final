@@ -200,7 +200,7 @@ foreach ($orders as $order) {
                             <div class="order-item">
                                 <div class="row align-items-center">
                                     <div class="col-md-1">
-                                        <img src="../uploads/products/<?= htmlspecialchars($item['product_image']) ?>" 
+                                        <img src="../uploads/<?= htmlspecialchars($item['product_image']) ?>" 
                                              class="product-image-order"
                                              onerror="this.src='https://via.placeholder.com/60?text=No+Image'">
                                     </div>

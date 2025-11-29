@@ -168,7 +168,7 @@ $user_role = isLoggedIn() ? ($_SESSION['role'] ?? 0) : null;
             <!-- Product Details -->
             <div class="product-header">
                 <div class="product-image">
-                    <img src="../uploads/products/<?php echo htmlspecialchars($product_details['product_image']); ?>" 
+                    <img src="../uploads/<?php echo htmlspecialchars($product_details['product_image']); ?>" 
                          alt="<?php echo htmlspecialchars($product_details['product_name']); ?>"
                          onerror="this.src='https://via.placeholder.com/400x400?text=No+Image'">
                 </div>

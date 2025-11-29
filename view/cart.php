@@ -137,7 +137,7 @@ foreach ($cartItems as $item) {
                             <div class="cart-item">
                                 <div class="row align-items-center">
                                     <div class="col-md-2 col-4">
-                                        <img src="../uploads/products/<?php echo htmlspecialchars($item['product_image']); ?>" 
+                                        <img src="../uploads/<?php echo htmlspecialchars($item['product_image']); ?>" 
                                              class="product-image-cart"
                                              onerror="this.src='https://via.placeholder.com/100?text=No+Image'">
                                     </div>

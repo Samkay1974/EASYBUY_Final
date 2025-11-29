@@ -148,7 +148,7 @@ $categories = get_all_categories_ctr();
             <div class="col-md-4 col-lg-3">
               <div class="card product-card h-100 shadow-sm">
                 <div style="position: relative; overflow: hidden;">
-                  <img src="../uploads/products/<?php echo htmlspecialchars($p['product_image']); ?>" 
+                  <img src="../uploads/<?php echo htmlspecialchars($p['product_image']); ?>" 
                        class="card-img-top" 
                        style="height:220px;object-fit:cover;"
                        onerror="this.src='https://via.placeholder.com/300x220?text=No+Image'">

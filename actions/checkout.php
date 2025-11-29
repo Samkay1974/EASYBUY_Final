@@ -198,7 +198,7 @@ $init_payment = isset($_GET['init_payment']) && $_GET['init_payment'] == 1;
                             <div class="order-item">
                                 <div class="row align-items-center">
                                     <div class="col-md-2">
-                                        <img src="../uploads/products/<?= htmlspecialchars($detail['product_image']) ?>" 
+                                        <img src="../uploads/<?= htmlspecialchars($detail['product_image']) ?>" 
                                              class="product-image-checkout"
                                              onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
                                     </div>

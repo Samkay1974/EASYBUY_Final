@@ -257,7 +257,7 @@ $cartItemCount = isLoggedIn() ? get_cart_item_count_ctr() : 0;
             <div class="col-6 col-md-4 col-lg-3">
               <div class="card product-card shadow-sm">
                 <div style="position: relative; overflow: hidden; height: 220px;">
-                  <img src="../uploads/products/<?php echo htmlspecialchars($p['product_image']); ?>" 
+                  <img src="../uploads/<?php echo htmlspecialchars($p['product_image']); ?>" 
                        class="card-img-top w-100 h-100" 
                        style="object-fit:cover;"
                        onerror="this.src='https://via.placeholder.com/300x220?text=No+Image'">

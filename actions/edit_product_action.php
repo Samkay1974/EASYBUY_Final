@@ -53,10 +53,11 @@ if (!empty($_FILES['product_image']['name'])) {
         exit;
     }
     
-    $upload_result = upload_file($_FILES['product_image'], 'products');
+    // Upload directly to product directory (we have product_id)
+    $upload_result = upload_file($_FILES['product_image'], $user_id, $product_id);
     
     if ($upload_result['success']) {
-        $product_image = $upload_result['filename'];
+        $product_image = $upload_result['path']; // Store the relative path
     } else {
         // For edit, if upload fails, return error so user knows
         $error_msg = $upload_result['error'] ?? 'Image upload failed';

@@ -152,7 +152,7 @@ if ($user_role == 0) {
                             <div class="collaboration-card">
                                 <div class="d-flex gap-3 mb-3">
                                     <?php if (!empty($collab['product_image'])): ?>
-                                        <img src="../uploads/products/<?php echo htmlspecialchars($collab['product_image']); ?>" 
+                                        <img src="../uploads/<?php echo htmlspecialchars($collab['product_image']); ?>" 
                                              class="product-image-small"
                                              onerror="this.src='https://via.placeholder.com/100?text=No+Image'">
                                     <?php endif; ?>

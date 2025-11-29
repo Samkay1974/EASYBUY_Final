@@ -62,10 +62,11 @@ if (!empty($_FILES['product_image']['name'])) {
         exit;
     }
     
-    $upload_result = upload_file($_FILES['product_image'], 'products');
+    // Upload to user directory first (product_id = 0 for new products)
+    $upload_result = upload_file($_FILES['product_image'], $user_id, 0);
     
     if ($upload_result['success']) {
-        $product_image = $upload_result['filename'];
+        $product_image = $upload_result['path']; // Store the relative path
     } else {
         echo json_encode([
             'status' => 'error',
@@ -77,6 +78,14 @@ if (!empty($_FILES['product_image']['name'])) {
 
 $insertId = add_product_ctr($user_id, $product_name, $product_brand, $product_cat, $moq, $wholesale_price, $product_image);
 if ($insertId) {
+    // If we have an image and product was created, move file to product directory
+    if ($product_image && $insertId > 0) {
+        $newPath = move_file_to_product_dir($product_image, $user_id, $insertId);
+        if ($newPath) {
+            // Update product with new path using controller
+            update_product_ctr($insertId, $user_id, $product_name, $product_brand, $product_cat, $moq, $wholesale_price, $newPath);
+        }
+    }
     echo json_encode(['status'=>'success','message'=>'Product added','id'=>$insertId]);
 } else {
     echo json_encode(['status'=>'error','message'=>'Could not add product']);
