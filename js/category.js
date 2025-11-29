@@ -91,7 +91,7 @@ $(document).ready(function () {
                 }
 
                 $.ajax({
-                    url: "../actions/update_category_action.php",
+                    url: "../actions/update_category.php",
                     type: "POST",
                     data: { cat_id: cat_id, cat_name: new_name },
                     dataType: "json",
@@ -125,7 +125,7 @@ $(document).ready(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "../actions/delete_category_action.php",
+                    url: "../actions/delete_category.php",
                     type: "POST",
                     data: { cat_id: cat_id },
                     dataType: "json",
