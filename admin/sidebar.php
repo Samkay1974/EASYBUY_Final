@@ -32,7 +32,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a class="nav-link" href="../view/homepage.php">
             <i class="fas fa-home me-2"></i>Homepage
         </a>
-        <a class="nav-link" href="../actions/logout_action.php">
+        <a class="nav-link" href="../login/logout.php">
             <i class="fas fa-sign-out-alt me-2"></i>Logout
         </a>
     </nav>
