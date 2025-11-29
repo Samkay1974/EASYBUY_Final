@@ -27,6 +27,7 @@ if ($user_id) {
 <html>
 <head>
 <title>My Profile</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
 .container {
     width: 60%;
@@ -78,10 +79,32 @@ a.button {
         <a class="button" href="my_orders.php">View My Orders</a>
     </div>
     <div class="section">
-    <h3>Delete Account</h3>
-    <a class="button" style="background:#cc0000;" href="delete_account.php">Delete My Account</a>
-</div>
+        <h3>Delete Account</h3>
+        <a class="button" style="background:#cc0000;" href="delete_account.php">Delete My Account</a>
+    </div>
 
+    <?php 
+    // Show subscription section for wholesalers (role 1)
+    $user_role = isset($_SESSION['role']) ? intval($_SESSION['role']) : 0;
+    if ($user_role == 1): 
+        require_once __DIR__ . '/../controllers/subscription_controller.php';
+        $active_subscription = get_active_subscription_ctr($user_id);
+        $product_count = get_user_product_count_ctr($user_id);
+    ?>
+        <div class="section">
+            <h3>Subscription</h3>
+            <?php if ($active_subscription): ?>
+                <p><strong>Status:</strong> <span style="color: #28a745;">Active (<?php echo ucfirst($active_subscription['plan_type']); ?> Plan)</span></p>
+                <p><strong>Products Created:</strong> <?php echo $product_count; ?></p>
+            <?php else: ?>
+                <p><strong>Status:</strong> <span style="color: #ffc107;">No Active Subscription</span></p>
+                <p><strong>Products Created:</strong> <?php echo $product_count; ?> / 3 (Free)</p>
+            <?php endif; ?>
+            <a class="button" href="subscription.php" style="margin-top: 10px;">
+                <i class="fas fa-crown" style="margin-right: 5px;"></i>View & Manage Subscription
+            </a>
+        </div>
+    <?php endif; ?>
 </div>
 
 </body>

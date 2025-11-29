@@ -48,20 +48,16 @@ $member_payment = null;
 $member_contribution_amount = 0;
 if ($is_collaboration_order) {
     $member_payment = get_member_payment_status_ctr($order_id, $customer_id);
-    if ($member_payment) {
-        $member_contribution_amount = floatval($member_payment['amount']);
-    } else {
-        // Calculate member's contribution if not initialized
-        require_once __DIR__ . '/../controllers/collaboration_controller.php';
-        $members = get_collaboration_members_ctr($order['collaboration_id']);
-        foreach ($members as $member) {
-            if ($member['user_id'] == $customer_id) {
-                $contribution_percent = floatval($member['contribution_percent']);
-                $member_subtotal = $order['total_amount'] * ($contribution_percent / 100);
-                $member_fee = $member_subtotal * 0.01;
-                $member_contribution_amount = $member_subtotal + $member_fee;
-                break;
-            }
+    // Always recalculate from order total_amount to ensure no transaction fees
+    // This ensures consistency even if old records had fees
+    require_once __DIR__ . '/../controllers/collaboration_controller.php';
+    $members = get_collaboration_members_ctr($order['collaboration_id']);
+    foreach ($members as $member) {
+        if ($member['user_id'] == $customer_id) {
+            $contribution_percent = floatval($member['contribution_percent']);
+            // No transaction fee - always recalculate from order total_amount
+            $member_contribution_amount = $order['total_amount'] * ($contribution_percent / 100);
+            break;
         }
     }
     
@@ -253,7 +249,7 @@ $init_payment = isset($_GET['init_payment']) && $_GET['init_payment'] == 1;
                                 
                                 <div class="d-flex justify-content-between mb-3">
                                     <span>Total Order Amount:</span>
-                                    <small class="text-muted">GH₵ <?= number_format($order['final_amount'], 2) ?></small>
+                                    <small class="text-muted">GH₵ <?= number_format($order['total_amount'], 2) ?></small>
                                 </div>
                                 
                                 <hr>
@@ -264,21 +260,11 @@ $init_payment = isset($_GET['init_payment']) && $_GET['init_payment'] == 1;
                                 </div>
                             <?php endif; ?>
                         <?php else: ?>
-                            <div class="d-flex justify-content-between mb-3">
-                                <span>Subtotal:</span>
-                                <strong>GH₵ <?= number_format($order['total_amount'], 2) ?></strong>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between mb-3">
-                                <span>Transaction Fee (1%):</span>
-                                <strong>GH₵ <?= number_format($order['transaction_fee'], 2) ?></strong>
-                            </div>
-                            
                             <hr>
                             
                             <div class="d-flex justify-content-between mb-4">
                                 <h5>Total Amount:</h5>
-                                <h5 class="text-primary">GH₵ <?= number_format($order['final_amount'], 2) ?></h5>
+                                <h5 class="text-primary">GH₵ <?= number_format($order['total_amount'], 2) ?></h5>
                             </div>
                         <?php endif; ?>
 
@@ -293,7 +279,7 @@ $init_payment = isset($_GET['init_payment']) && $_GET['init_payment'] == 1;
                                         <i class="fas fa-credit-card me-2"></i>Pay Your Contribution
                                     </button>
                                 <?php else: ?>
-                                    <button onclick="initiatePaystackPayment(<?= $order_id ?>, <?= $order['final_amount'] ?>, '<?= htmlspecialchars($user_email, ENT_QUOTES) ?>', false)" class="btn btn-primary btn-pay">
+                                    <button onclick="initiatePaystackPayment(<?= $order_id ?>, <?= $order['total_amount'] ?>, '<?= htmlspecialchars($user_email, ENT_QUOTES) ?>', false)" class="btn btn-primary btn-pay">
                                         <i class="fas fa-credit-card me-2"></i>Pay Now
                                     </button>
                                 <?php endif; ?>
@@ -335,7 +321,7 @@ $init_payment = isset($_GET['init_payment']) && $_GET['init_payment'] == 1;
             });
             <?php elseif (!$is_collaboration_order && $order['payment_status'] != 'paid'): ?>
             document.addEventListener('DOMContentLoaded', function() {
-                initiatePaystackPayment(<?= $order_id ?>, <?= $order['final_amount'] ?>, '<?= htmlspecialchars($user_email, ENT_QUOTES) ?>', false);
+                initiatePaystackPayment(<?= $order_id ?>, <?= $order['total_amount'] ?>, '<?= htmlspecialchars($user_email, ENT_QUOTES) ?>', false);
             });
             <?php endif; ?>
         <?php endif; ?>

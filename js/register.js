@@ -13,7 +13,7 @@ document.getElementById("registerForm").addEventListener("submit", function(e){
     const roleEl = document.querySelector('input[name="user_role"]:checked');
     formData.append("user_role", roleEl ? roleEl.value : '0');
 
-    // Use the form's action attribute so the path is always correct
+    
     const actionUrl = form.getAttribute('action') || '../actions/register_action.php';
 
     fetch(actionUrl, {

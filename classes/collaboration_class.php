@@ -243,8 +243,9 @@ class Collaboration extends db_connection
             
             // Calculate full order amount (1 MOQ unit)
             $total_amount = floatval($product['wholesale_price']); // Price for 1 MOQ unit
-            $transaction_fee = $total_amount * 0.01;
-            $final_amount = $total_amount + $transaction_fee;
+            // No transaction fee - removed
+            $transaction_fee = 0.00;
+            $final_amount = $total_amount; // No transaction fee
             
             // Use creator as the contact person (customer_id)
             $contact_person_id = $collab['creator_id'];
@@ -272,9 +273,8 @@ class Collaboration extends db_connection
             require_once __DIR__ . '/../controllers/cart_controller.php';
             foreach ($members as $member) {
                 $member_contribution = floatval($member['contribution_percent']);
-                $member_subtotal = $total_amount * ($member_contribution / 100);
-                $member_fee = $member_subtotal * 0.01;
-                $member_amount = $member_subtotal + $member_fee;
+                // No transaction fee - removed
+                $member_amount = $total_amount * ($member_contribution / 100);
                 
                 // Initialize payment record
                 $init_sql = "INSERT INTO collaboration_order_payments 
@@ -327,18 +327,55 @@ class Collaboration extends db_connection
     {
         try {
             $this->db_connect();
-            $sql = "SELECT DISTINCT c.*, p.product_name, p.moq, p.wholesale_price, p.product_image,
+            
+            // Get collaborations where user is creator OR member, and status is not cancelled
+            // Use UNION to combine both cases - this ensures we get all collaborations
+            $sql = "(SELECT DISTINCT c.*, p.product_name, p.moq, p.wholesale_price, p.product_image, p.product_brand, p.product_cat,
+                    b.brand_name, cat.cat_name, u.full_name AS creator_name,
                     (SELECT COALESCE(SUM(contribution_percent), 0) FROM collaboration_members WHERE collaboration_id = c.collaboration_id) AS total_contribution
                     FROM collaborations c
                     LEFT JOIN products p ON c.product_id = p.product_id
-                    LEFT JOIN collaboration_members cm ON c.collaboration_id = cm.collaboration_id
-                    WHERE (c.creator_id = :uid OR cm.user_id = :uid) AND c.status IN ('open', 'completed', 'expired')
-                    ORDER BY c.created_at DESC";
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    LEFT JOIN categories cat ON p.product_cat = cat.cat_id
+                    LEFT JOIN users u ON c.creator_id = u.id
+                    WHERE c.creator_id = :uid1 
+                    AND c.status != 'cancelled')
+                    
+                    UNION
+                    
+                    (SELECT DISTINCT c.*, p.product_name, p.moq, p.wholesale_price, p.product_image, p.product_brand, p.product_cat,
+                    b.brand_name, cat.cat_name, u.full_name AS creator_name,
+                    (SELECT COALESCE(SUM(contribution_percent), 0) FROM collaboration_members WHERE collaboration_id = c.collaboration_id) AS total_contribution
+                    FROM collaborations c
+                    INNER JOIN collaboration_members cm ON c.collaboration_id = cm.collaboration_id
+                    LEFT JOIN products p ON c.product_id = p.product_id
+                    LEFT JOIN brands b ON p.product_brand = b.brand_id
+                    LEFT JOIN categories cat ON p.product_cat = cat.cat_id
+                    LEFT JOIN users u ON c.creator_id = u.id
+                    WHERE cm.user_id = :uid2 
+                    AND c.status != 'cancelled')
+                    
+                    ORDER BY created_at DESC";
+            
             $stmt = $this->db->prepare($sql);
-            $stmt->execute([':uid' => $user_id]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->execute([
+                ':uid1' => $user_id,
+                ':uid2' => $user_id
+            ]);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug logging
+            error_log("User collaborations query - User ID: $user_id, Results count: " . count($results));
+            if (count($results) > 0) {
+                error_log("First collaboration ID: " . $results[0]['collaboration_id'] . ", Product: " . ($results[0]['product_name'] ?? 'N/A'));
+            } else {
+                error_log("No collaborations found for user ID: $user_id");
+            }
+            
+            return $results;
         } catch (PDOException $e) {
             error_log("Error getting user collaborations: " . $e->getMessage());
+            error_log("SQL Error trace: " . $e->getTraceAsString());
             return [];
         }
     }
@@ -397,5 +434,68 @@ class Collaboration extends db_connection
             return false;
         }
     }
+
+    /**
+     * Delete a collaboration group (only creator can delete)
+     */
+    public function delete_collaboration($collaboration_id, $creator_id)
+    {
+        try {
+            $this->db_connect();
+            
+            // Get collaboration details
+            $collab = $this->get_collaboration_by_id($collaboration_id);
+            if (!$collab) {
+                return false;
+            }
+            
+            // Verify that the user is the creator
+            if ($collab['creator_id'] != $creator_id) {
+                return false; // Not the creator
+            }
+            
+            // Check if there are paid orders for this collaboration
+            $orderCheck = $this->db->prepare("SELECT COUNT(*) as order_count FROM orders WHERE collaboration_id = :cid AND payment_status = 'paid'");
+            $orderCheck->execute([':cid' => $collaboration_id]);
+            $orderResult = $orderCheck->fetch(PDO::FETCH_ASSOC);
+            
+            if ($orderResult && $orderResult['order_count'] > 0) {
+                return false; // Cannot delete after payment
+            }
+            
+            // Start transaction
+            $this->db->beginTransaction();
+            
+            try {
+                // Delete all collaboration members
+                $deleteMembers = $this->db->prepare("DELETE FROM collaboration_members WHERE collaboration_id = :cid");
+                $deleteMembers->execute([':cid' => $collaboration_id]);
+                
+                // Delete any pending orders for this collaboration
+                $deleteOrders = $this->db->prepare("DELETE FROM orders WHERE collaboration_id = :cid AND payment_status != 'paid'");
+                $deleteOrders->execute([':cid' => $collaboration_id]);
+                
+                // Delete collaboration payment records
+                $deletePayments = $this->db->prepare("DELETE FROM collaboration_order_payments WHERE collaboration_id = :cid");
+                $deletePayments->execute([':cid' => $collaboration_id]);
+                
+                // Delete the collaboration itself
+                $deleteCollab = $this->db->prepare("DELETE FROM collaborations WHERE collaboration_id = :cid");
+                $deleteCollab->execute([':cid' => $collaboration_id]);
+                
+                // Commit transaction
+                $this->db->commit();
+                return true;
+            } catch (PDOException $e) {
+                // Rollback on error
+                $this->db->rollBack();
+                throw $e;
+            }
+        } catch (PDOException $e) {
+            error_log("Error deleting collaboration: " . $e->getMessage());
+            return false;
+        }
+    }
 }
+
 

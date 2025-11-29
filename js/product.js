@@ -45,9 +45,30 @@ async function submitProductForm() {
             }
         } else {
             if (typeof Swal !== 'undefined') {
-                Swal.fire('Error!', json.message, 'error');
+                if (json.requires_subscription) {
+                    Swal.fire({
+                        title: 'Subscription Required',
+                        html: json.message + '<br><br>Would you like to subscribe now?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, Subscribe',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '../view/subscription.php';
+                        }
+                    });
+                } else {
+                    Swal.fire('Error!', json.message, 'error');
+                }
             } else {
-                alert(json.message);
+                if (json.requires_subscription) {
+                    if (confirm(json.message + '\n\nWould you like to subscribe now?')) {
+                        window.location.href = '../view/subscription.php';
+                    }
+                } else {
+                    alert(json.message);
+                }
             }
             if (submitBtn) {
                 submitBtn.disabled = false;

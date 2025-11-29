@@ -3,6 +3,7 @@ session_start();
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../settings/core.php';
+require_once __DIR__ . '/../settings/upload_config.php';
 require_once __DIR__ . '/../controllers/product_controller.php';
 
 if (!isLoggedIn() || !check_user_role(1)) { 
@@ -36,12 +37,15 @@ $wholesale_price = floatval($_POST['wholesale_price'] ?? 0);
 // image optional
 $product_image = null;
 if (!empty($_FILES['product_image']['name'])) {
-    $uploadDir = __DIR__ . '/../uploads/products/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-    $ext = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
-    $fileName = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
-    $target = $uploadDir . $fileName;
-    if (move_uploaded_file($_FILES['product_image']['tmp_name'], $target)) $product_image = $fileName;
+    $upload_result = upload_file($_FILES['product_image'], 'products');
+    
+    if ($upload_result['success']) {
+        $product_image = $upload_result['filename'];
+    } else {
+        // For edit, if upload fails, we can continue without updating the image
+        // But log the error
+        error_log("Image upload failed during product edit: " . ($upload_result['error'] ?? 'Unknown error'));
+    }
 }
 
 $ok = update_product_ctr($product_id, $user_id, $product_name, $product_brand, $product_cat, $moq, $wholesale_price, $product_image);

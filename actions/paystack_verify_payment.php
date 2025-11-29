@@ -90,13 +90,27 @@ try {
         exit();
     }
     
-    // Check if this is a collaboration order payment or existing regular order (order_id in session)
+    // Check if this is a subscription payment, collaboration order payment, or existing regular order
+    $subscription_id = isset($_SESSION['paystack_subscription_id']) ? intval($_SESSION['paystack_subscription_id']) : 0;
     $existing_order_id = isset($_SESSION['paystack_order_id']) ? intval($_SESSION['paystack_order_id']) : 0;
+    $is_subscription_payment = false;
     $is_collaboration_order = false;
     $is_existing_regular_order = false;
     $order = null;
+    $subscription = null;
     
-    if ($existing_order_id > 0) {
+    // Check for subscription payment first
+    if ($subscription_id > 0) {
+        require_once '../controllers/subscription_controller.php';
+        $subscription = get_subscription_by_id_ctr($subscription_id);
+        if ($subscription && $subscription['payment_reference'] == $reference) {
+            $is_subscription_payment = true;
+            error_log("This is a subscription payment - Subscription ID: $subscription_id");
+        }
+    }
+    
+    // If not subscription, check for order payment
+    if (!$is_subscription_payment && $existing_order_id > 0) {
         require_once '../controllers/order_controller.php';
         $order = get_order_by_id_ctr($existing_order_id);
         if ($order) {
@@ -110,10 +124,18 @@ try {
         }
     }
     
+    // For subscription payments, get expected amount from subscription
     // For collaboration orders, get expected amount from order
     // For existing regular orders, get expected amount from order
     // For new regular orders, calculate from cart
-    if ($is_collaboration_order && $order) {
+    if ($is_subscription_payment && $subscription) {
+        // Subscription payment - get expected amount from subscription
+        $expected_amount = floatval($subscription['amount']);
+        if ($total_amount <= 0) {
+            $total_amount = round($expected_amount, 2);
+        }
+        error_log("Subscription payment - Expected: $expected_amount GHS");
+    } elseif ($is_collaboration_order && $order) {
         require_once '../controllers/collaboration_controller.php';
         require_once '../controllers/order_controller.php';
         
@@ -129,9 +151,8 @@ try {
         }
         
         if ($member_contribution_percent > 0) {
-            $member_subtotal = $order['total_amount'] * ($member_contribution_percent / 100);
-            $member_fee = $member_subtotal * 0.01;
-            $expected_amount = $member_subtotal + $member_fee;
+            // No transaction fee - removed
+            $expected_amount = $order['total_amount'] * ($member_contribution_percent / 100);
             
             if ($total_amount <= 0) {
                 $total_amount = round($expected_amount, 2);
@@ -142,8 +163,8 @@ try {
             throw new Exception("Could not find member contribution percentage");
         }
     } elseif ($is_existing_regular_order && $order) {
-        // Existing regular order - get expected amount from order
-        $expected_amount = floatval($order['final_amount']);
+        // Existing regular order - get expected amount from order (no transaction fee)
+        $expected_amount = floatval($order['total_amount']);
         if ($total_amount <= 0) {
             $total_amount = round($expected_amount, 2);
         }
@@ -172,10 +193,10 @@ try {
         error_log("New regular order from cart - Calculated: $calculated_total GHS");
     }
 
-    error_log("Expected order total (server): $total_amount GHS");
+    error_log("Expected payment total (server): $total_amount GHS");
 
-    // Verify amount matches (with 1 pesewa tolerance)
-    if (abs($amount_paid - $total_amount) > 0.01) {
+    // Verify amount matches (with 1 pesewa tolerance) - skip for subscription (handled separately)
+    if (!$is_subscription_payment && abs($amount_paid - $total_amount) > 0.01) {
         error_log("Amount mismatch - Expected: $total_amount GHS, Paid: $amount_paid GHS");
 
         echo json_encode([
@@ -188,18 +209,76 @@ try {
         exit();
     }
     
-    // Payment is verified! Now process the order
+    // Payment is verified! Now process the payment
     require_once '../controllers/cart_controller.php';
     require_once '../controllers/order_controller.php';
     require_once '../controllers/collaboration_controller.php';
+    require_once '../controllers/subscription_controller.php';
     require_once '../settings/db_class.php';
     
     $customer_id = get_user_id();
     $customer_name = get_user_name();
     $order_date = date('Y-m-d');
     
-    // Handle collaboration orders differently
-    if ($is_collaboration_order && $order) {
+    // Handle subscription payments first
+    if ($is_subscription_payment && $subscription) {
+        error_log("Processing subscription payment - Subscription ID: {$subscription['subscription_id']}");
+        
+        // Verify amount matches subscription amount
+        $expected_amount = floatval($subscription['amount']);
+        if (abs($amount_paid - $expected_amount) > 0.01) {
+            error_log("Subscription amount mismatch - Expected: $expected_amount GHS, Paid: $amount_paid GHS");
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Payment amount does not match subscription amount',
+                'verified' => false,
+                'expected' => number_format($expected_amount, 2),
+                'paid' => number_format($amount_paid, 2)
+            ]);
+            exit();
+        }
+        
+        // Update subscription payment status
+        $result = update_subscription_payment_status_ctr($subscription['subscription_id'], 'paid', $reference);
+        
+        if (!$result) {
+            throw new Exception("Failed to update subscription payment status");
+        }
+        
+        // Record payment
+        record_subscription_payment_ctr(
+            $subscription['subscription_id'],
+            $customer_id,
+            $expected_amount,
+            $reference,
+            'paid'
+        );
+        
+        error_log("Subscription payment recorded - Subscription ID: {$subscription['subscription_id']}, Amount: $expected_amount GHS");
+        
+        // Clear session payment data
+        unset($_SESSION['paystack_ref']);
+        unset($_SESSION['paystack_amount']);
+        unset($_SESSION['paystack_timestamp']);
+        unset($_SESSION['paystack_subscription_id']);
+        unset($_SESSION['paystack_plan_type']);
+        
+        // Return success response
+        echo json_encode([
+            'status' => 'success',
+            'verified' => true,
+            'message' => 'Subscription payment successful! Your subscription is now active.',
+            'subscription_id' => $subscription['subscription_id'],
+            'plan_type' => $subscription['plan_type'],
+            'amount' => number_format($expected_amount, 2),
+            'currency' => 'GHS',
+            'payment_reference' => $reference,
+            'payment_method' => ucfirst($payment_method),
+            'customer_email' => $customer_email,
+            'is_subscription' => true
+        ]);
+        
+    } elseif ($is_collaboration_order && $order) {
         // For collaboration orders, record member payment
         error_log("Processing collaboration order payment - Order ID: {$order['order_id']}");
         
@@ -336,8 +415,9 @@ try {
                 }
             }
             
-            $transaction_fee = $calculated_total * 0.01;
-            $final_amount = $calculated_total + $transaction_fee;
+            // No transaction fee - removed
+            $transaction_fee = 0.00;
+            $final_amount = $calculated_total;
             
             // Create order in database
             $order_id = create_order_ctr($customer_id, $calculated_total, $transaction_fee, $final_amount, null);

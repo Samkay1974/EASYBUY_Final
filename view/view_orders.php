@@ -28,7 +28,6 @@ foreach ($orders as $order) {
             'order_date' => $order['order_date'],
             'total_amount' => $order['total_amount'],
             'final_amount' => $order['final_amount'],
-            'transaction_fee' => $order['transaction_fee'],
             'items' => []
         ];
     }
@@ -151,9 +150,9 @@ foreach ($orders as $order) {
                                         <span class="status-badge status-<?= $order['status'] ?>">
                                             Status: <?= $order['status'] == 'completed' ? 'Success' : ucfirst($order['status']) ?>
                                         </span>
-                                        <span class="status-badge payment-<?= $order['payment_status'] ?>">
-                                            Payment: <?= ucfirst($order['payment_status']) ?>
-                                        </span>
+                                    <span class="status-badge payment-<?= $order['payment_status'] ?>">
+                                        Payment: <?= ucfirst($order['payment_status']) ?>
+                                    </span>
                                     </div>
                                 </div>
                             </div>
@@ -192,9 +191,7 @@ foreach ($orders as $order) {
                             </div>
                             <div class="col-md-6 text-end">
                                 <h6>Order Summary</h6>
-                                <p class="mb-1">Subtotal: <strong>GH₵ <?= number_format($order['total_amount'], 2) ?></strong></p>
-                                <p class="mb-1">Transaction Fee: <strong>GH₵ <?= number_format($order['transaction_fee'], 2) ?></strong></p>
-                                <p class="mb-0">Total: <strong class="text-primary">GH₵ <?= number_format($order['final_amount'], 2) ?></strong></p>
+                                <p class="mb-0">Total: <strong class="text-primary">GH₵ <?= number_format($order['total_amount'], 2) ?></strong></p>
                             </div>
                         </div>
 

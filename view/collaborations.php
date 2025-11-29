@@ -106,6 +106,14 @@ if ($user_role == 0) {
                 </div>
             </div>
 
+            <?php 
+            // Debug: Check what we got
+            error_log("Collaborations page - User ID: $user_id, Role: $user_role, Count: " . count($collaborations));
+            if (!empty($collaborations)) {
+                error_log("First collaboration: " . print_r($collaborations[0], true));
+            }
+            ?>
+            
             <?php if (empty($collaborations)): ?>
                 <div class="empty-state">
                     <i class="fas fa-users fa-4x mb-3" style="color: #667eea; opacity: 0.5;"></i>
@@ -150,11 +158,21 @@ if ($user_role == 0) {
                                     <?php endif; ?>
                                     <div class="flex-grow-1">
                                         <h5><?php echo htmlspecialchars($collab['product_name']); ?></h5>
+                                        <?php if (!empty($collab['brand_name'])): ?>
+                                            <p class="text-muted small mb-1">
+                                                <i class="fas fa-tag me-1"></i>Brand: <strong><?php echo htmlspecialchars($collab['brand_name']); ?></strong>
+                                            </p>
+                                        <?php endif; ?>
+                                        <?php if (!empty($collab['cat_name'])): ?>
+                                            <p class="text-muted small mb-1">
+                                                <i class="fas fa-folder me-1"></i>Category: <strong><?php echo htmlspecialchars($collab['cat_name']); ?></strong>
+                                            </p>
+                                        <?php endif; ?>
                                         <p class="text-muted small mb-1">
-                                            <i class="fas fa-tag me-1"></i>MOQ: <?php echo (int)$collab['moq']; ?> units
+                                            <i class="fas fa-box me-1"></i>MOQ: <strong><?php echo (int)$collab['moq']; ?> units</strong>
                                         </p>
                                         <p class="text-muted small mb-0">
-                                            <i class="fas fa-dollar-sign me-1"></i>GH₵ <?php echo number_format($collab['wholesale_price'], 2); ?>
+                                            <i class="fas fa-dollar-sign me-1"></i>Price: <strong>GH₵ <?php echo number_format($collab['wholesale_price'], 2); ?></strong>
                                         </p>
                                     </div>
                                     <span class="badge bg-<?php echo $total_contribution >= 100 ? 'success' : 'warning'; ?> align-self-start">
@@ -163,7 +181,7 @@ if ($user_role == 0) {
                                 </div>
 
                                 <div class="mb-3">
-                                    <div class="d-flex justify-content-between mb-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
                                         <small class="text-muted">
                                             <?php if ($is_creator): ?>
                                                 <i class="fas fa-crown me-1"></i>You created this
@@ -171,9 +189,18 @@ if ($user_role == 0) {
                                                 Created by <?php echo htmlspecialchars($collab['creator_name']); ?>
                                             <?php endif; ?>
                                         </small>
-                                        <small class="text-muted">
-                                            <?php echo date('M d, Y', strtotime($collab['created_at'])); ?>
-                                        </small>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <?php if ($is_creator && !$has_paid_orders): ?>
+                                                <button onclick="deleteCollaboration(<?php echo $collab['collaboration_id']; ?>)" 
+                                                        class="btn btn-danger btn-sm" 
+                                                        title="Delete this collaboration group">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            <?php endif; ?>
+                                            <small class="text-muted">
+                                                <?php echo date('M d, Y', strtotime($collab['created_at'])); ?>
+                                            </small>
+                                        </div>
                                     </div>
                                     <div class="progress-bar-custom">
                                         <div class="progress-fill" style="width: <?php echo min($total_contribution, 100); ?>%;">
@@ -238,6 +265,13 @@ if ($user_role == 0) {
                                     <?php if ($collab_order): ?>
                                         <!-- Order has been automatically placed, show checkout for all members -->
                                         <div class="d-grid gap-2">
+                                            <?php if ($is_creator && !$has_paid_orders): ?>
+                                                <button onclick="deleteCollaboration(<?php echo $collab['collaboration_id']; ?>)" 
+                                                        class="btn btn-danger" 
+                                                        title="Delete this collaboration group">
+                                                    <i class="fas fa-trash me-2"></i>Delete Collaboration Group
+                                                </button>
+                                            <?php endif; ?>
                                             <?php if ($member_paid): ?>
                                                 <div class="alert alert-success mb-0">
                                                     <i class="fas fa-check-circle me-2"></i>You have paid your contribution!
@@ -259,9 +293,18 @@ if ($user_role == 0) {
                                         </div>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <a href="product_details.php?id=<?php echo $collab['product_id']; ?>" class="btn btn-primary w-100">
-                                        <i class="fas fa-eye me-2"></i>View Details
-                                    </a>
+                                    <div class="d-grid gap-2">
+                                        <?php if ($is_creator && !$has_paid_orders): ?>
+                                            <button onclick="deleteCollaboration(<?php echo $collab['collaboration_id']; ?>)" 
+                                                    class="btn btn-danger w-100" 
+                                                    title="Delete this collaboration group">
+                                                <i class="fas fa-trash me-2"></i>Delete Collaboration Group
+                                            </button>
+                                        <?php endif; ?>
+                                        <a href="product_details.php?id=<?php echo $collab['product_id']; ?>" class="btn btn-primary w-100">
+                                            <i class="fas fa-eye me-2"></i>View Details
+                                        </a>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -275,6 +318,57 @@ if ($user_role == 0) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../js/order.js"></script>
     <script>
+        // Delete collaboration function (creator only)
+        function deleteCollaboration(collaborationId) {
+            Swal.fire({
+                title: 'Delete Collaboration?',
+                text: 'Are you sure you want to delete this collaboration group? This will remove all members and cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete!',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const formData = new FormData();
+                    formData.append('collaboration_id', collaborationId);
+                    
+                    return fetch('../actions/delete_collaboration.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            return data;
+                        } else {
+                            throw new Error(data.message || 'Failed to delete collaboration');
+                        }
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: result.value.message || 'Collaboration group has been deleted.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            }).catch((error) => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message || 'Failed to delete collaboration.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+
         // Leave collaboration function
         function leaveCollaboration(collaborationId) {
             Swal.fire({

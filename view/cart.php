@@ -229,12 +229,12 @@ foreach ($cartItems as $item) {
                                                     <small class="text-muted text-center">Order #<?php echo $pending_order_id; ?></small>
                                                 <?php else: ?>
                                                     <!-- No pending order - allow placing new order -->
-                                                    <button class="btn btn-sm btn-success" onclick="placeSingleProductOrder(<?php echo $item['product_id']; ?>)">
-                                                        <i class="fas fa-shopping-bag me-1"></i>Place Order
-                                                    </button>
-                                                    <button class="btn btn-sm btn-primary" onclick="proceedToCheckoutSingle(<?php echo $item['product_id']; ?>)">
-                                                        <i class="fas fa-credit-card me-1"></i>Checkout
-                                                    </button>
+                                                <button class="btn btn-sm btn-success" onclick="placeSingleProductOrder(<?php echo $item['product_id']; ?>)">
+                                                    <i class="fas fa-shopping-bag me-1"></i>Place Order
+                                                </button>
+                                                <button class="btn btn-sm btn-primary" onclick="proceedToCheckoutSingle(<?php echo $item['product_id']; ?>)">
+                                                    <i class="fas fa-credit-card me-1"></i>Checkout
+                                                </button>
                                                 <?php endif; ?>
                                                 <button class="btn btn-sm btn-danger" onclick="removeFromCart(<?php echo $item['product_id']; ?>)">
                                                     <i class="fas fa-trash me-1"></i>Remove

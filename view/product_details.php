@@ -237,6 +237,7 @@ $user_role = isLoggedIn() ? ($_SESSION['role'] ?? 0) : null;
                         $total_contribution = floatval($collab['total_contribution'] ?? 0);
                         $remaining = 100 - $total_contribution;
                         $is_member = isLoggedIn() ? is_member_ctr($collab['collaboration_id'], $user_id) : false;
+                        $is_creator = isLoggedIn() ? ($collab['creator_id'] == $user_id) : false;
                         
                         // Check if there are paid orders for this collaboration (once per collaboration)
                         $has_paid_orders = false;
@@ -255,16 +256,29 @@ $user_role = isLoggedIn() ? ($_SESSION['role'] ?? 0) : null;
                                 <div>
                                     <h5><i class="fas fa-users me-2"></i>Collaboration Group</h5>
                                     <p class="text-muted small mb-0">
-                                        Created by <strong><?php echo htmlspecialchars($collab['creator_name']); ?></strong>
+                                        <?php if ($is_creator): ?>
+                                            <i class="fas fa-crown me-1"></i>You created this
+                                        <?php else: ?>
+                                            Created by <strong><?php echo htmlspecialchars($collab['creator_name']); ?></strong>
+                                        <?php endif; ?>
                                         on <?php echo date('M d, Y', strtotime($collab['created_at'])); ?>
                                     </p>
                                     <p class="text-muted small mb-0">
                                         Minimum contribution: <strong><?php echo $collab['min_contribution_percent']; ?>%</strong>
                                     </p>
                                 </div>
-                                <span class="badge bg-<?php echo $total_contribution >= 100 ? 'success' : 'warning'; ?>">
-                                    <?php echo $total_contribution >= 100 ? 'Complete' : 'Open'; ?>
-                                </span>
+                                <div class="d-flex flex-column align-items-end gap-2">
+                                    <?php if ($is_creator && !$has_paid_orders): ?>
+                                        <button onclick="deleteCollaboration(<?php echo $collab['collaboration_id']; ?>)" 
+                                                class="btn btn-sm btn-danger" 
+                                                title="Delete this collaboration group">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </button>
+                                    <?php endif; ?>
+                                    <span class="badge bg-<?php echo $total_contribution >= 100 ? 'success' : 'warning'; ?>">
+                                        <?php echo $total_contribution >= 100 ? 'Complete' : 'Open'; ?>
+                                    </span>
+                                </div>
                             </div>
 
                             <div class="progress-bar-custom">
@@ -530,6 +544,57 @@ $user_role = isLoggedIn() ? ($_SESSION['role'] ?? 0) : null;
         });
         
         // Leave collaboration function
+        // Delete collaboration function (creator only)
+        function deleteCollaboration(collaborationId) {
+            Swal.fire({
+                title: 'Delete Collaboration?',
+                text: 'Are you sure you want to delete this collaboration group? This will remove all members and cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete!',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    const formData = new FormData();
+                    formData.append('collaboration_id', collaborationId);
+                    
+                    return fetch('../actions/delete_collaboration.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            return data;
+                        } else {
+                            throw new Error(data.message || 'Failed to delete collaboration');
+                        }
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: result.value.message || 'Collaboration group has been deleted.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            }).catch((error) => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message || 'Failed to delete collaboration.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+
         function leaveCollaboration(collaborationId) {
             Swal.fire({
                 title: 'Leave Collaboration?',

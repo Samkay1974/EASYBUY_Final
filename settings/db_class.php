@@ -1,6 +1,6 @@
 <?php
 // DB credentials
-include_once 'db_cred.php';
+include_once 'server_cred.php';
 
 /**
  * PDO-based DB connection wrapper with some compatibility helpers

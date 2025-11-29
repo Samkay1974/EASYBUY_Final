@@ -97,9 +97,8 @@ if ($is_collaboration_order) {
     }
     
     if ($member_contribution_percent > 0) {
-        $member_subtotal = $order['total_amount'] * ($member_contribution_percent / 100);
-        $member_fee = $member_subtotal * 0.01;
-        $member_amount = $member_subtotal + $member_fee;
+        // No transaction fee - removed
+        $member_amount = $order['total_amount'] * ($member_contribution_percent / 100);
         
         // Get user email
         $user = get_user_by_id_ctr($customer_id);
@@ -140,7 +139,8 @@ if ($is_collaboration_order) {
     
     // Store order info in session for Paystack
     $_SESSION['paystack_order_id'] = $order_id;
-    $_SESSION['paystack_amount'] = $order['final_amount'];
+    // No transaction fee - use total_amount instead of final_amount
+    $_SESSION['paystack_amount'] = $order['total_amount'];
     
     // Redirect to checkout page which will initiate Paystack payment via JavaScript
     header("Location: checkout.php?order_id=" . $order_id . "&init_payment=1");

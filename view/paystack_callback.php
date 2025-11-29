@@ -113,9 +113,12 @@ error_log("Reference from URL: $reference");
                     // Payment verified successfully
                     document.getElementById('successBox').style.display = 'block';
                     
-                    // Redirect based on order type
+                    // Redirect based on payment type
                     setTimeout(() => {
-                        if (data.is_collaboration) {
+                        if (data.is_subscription) {
+                            // For subscription payments, redirect to subscription page
+                            window.location.replace(`../view/subscription.php?payment=success`);
+                        } else if (data.is_collaboration) {
                             // For collaboration orders, redirect back to checkout page
                             window.location.replace(`../actions/checkout.php?order_id=${data.order_id}&payment=success`);
                         } else {

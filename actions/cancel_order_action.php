@@ -62,12 +62,25 @@ if ($order['status'] == 'cancelled') {
 // For regular orders, restrict to the customer
 if ($is_collaboration_order) {
     $result = cancel_order_ctr($order_id, null);
+    
+    // If order is cancelled, automatically remove the user from the collaboration
+    if ($result) {
+        require_once __DIR__ . '/../controllers/collaboration_controller.php';
+        $collaboration_id = $order['collaboration_id'];
+        
+        // Remove user from collaboration (they cancelled the order)
+        leave_collaboration_ctr($collaboration_id, $customer_id);
+    }
 } else {
     $result = cancel_order_ctr($order_id, $customer_id);
 }
 
 if ($result) {
-    $_SESSION['success'] = "Order #{$order_id} has been cancelled successfully.";
+    $message = "Order #{$order_id} has been cancelled successfully.";
+    if ($is_collaboration_order) {
+        $message .= " You have been removed from the collaboration group.";
+    }
+    $_SESSION['success'] = $message;
 } else {
     $_SESSION['error'] = "Failed to cancel order. Please try again.";
 }

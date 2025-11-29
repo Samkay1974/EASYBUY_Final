@@ -57,7 +57,7 @@ a.button {
         <?php foreach($orders as $order): ?>
             <div class="order-card">
                 <p><strong>Order ID:</strong> #<?= $order['order_id']; ?></p>
-                <p><strong>Total Amount:</strong> GH₵ <?= number_format($order['final_amount'], 2); ?></p>
+                <p><strong>Total Amount:</strong> GH₵ <?= number_format($order['total_amount'], 2); ?></p>
                 <p><strong>Date:</strong> <?= date('F d, Y h:i A', strtotime($order['created_at'])); ?></p>
                 <p><strong>Status:</strong> 
                     <span style="padding: 5px 10px; border-radius: 5px; background: <?php 

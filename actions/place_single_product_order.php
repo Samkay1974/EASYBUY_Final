@@ -108,8 +108,9 @@ if ($product) {
     $total_amount = $item_total;
 }
 
-$transaction_fee = $total_amount * 0.01;
-$final_amount = $total_amount + $transaction_fee;
+// No transaction fee - removed
+$transaction_fee = 0.00;
+$final_amount = $total_amount;
 
 // Create order with this single product
 $order_id = create_order_ctr($customer_id, $total_amount, $transaction_fee, $final_amount, $collaboration_id);
@@ -146,7 +147,8 @@ if ($collaboration_id && !empty($members)) {
     
     foreach ($members as $member) {
         $member_contribution = floatval($member['contribution_percent']);
-        $member_amount = ($total_amount * ($member_contribution / 100)) + (($total_amount * ($member_contribution / 100)) * 0.01);
+        // No transaction fee - removed
+        $member_amount = $total_amount * ($member_contribution / 100);
         
         // Initialize payment record (pending)
         $init_sql = "INSERT INTO collaboration_order_payments 

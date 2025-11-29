@@ -67,3 +67,9 @@ function leave_collaboration_ctr($collaboration_id, $user_id)
     return $collab->leave_collaboration($collaboration_id, $user_id);
 }
 
+function delete_collaboration_ctr($collaboration_id, $creator_id)
+{
+    $collab = new Collaboration();
+    return $collab->delete_collaboration($collaboration_id, $creator_id);
+}
+

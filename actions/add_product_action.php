@@ -3,7 +3,9 @@ session_start();
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../settings/core.php';
+require_once __DIR__ . '/../settings/upload_config.php';
 require_once __DIR__ . '/../controllers/product_controller.php';
+require_once __DIR__ . '/../controllers/subscription_controller.php';
 
 // ensure logged in and wholesaler (role 1)
 if (!isLoggedIn() || !check_user_role(1)) {
@@ -12,6 +14,18 @@ if (!isLoggedIn() || !check_user_role(1)) {
 }
 
 $user_id = get_user_id();
+
+// Check if user can create more products (subscription check)
+if (!can_create_product_ctr($user_id)) {
+    $product_count = get_user_product_count_ctr($user_id);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'You have reached the limit of 3 free products. Please subscribe to create more products.',
+        'requires_subscription' => true,
+        'product_count' => $product_count
+    ]);
+    exit;
+}
 
 // Validate required fields
 $req = ['product_name','product_brand','product_cat','moq','wholesale_price'];
@@ -32,17 +46,15 @@ $wholesale_price = floatval($_POST['wholesale_price']);
 // handle image upload
 $product_image = null;
 if (!empty($_FILES['product_image']['name'])) {
-    $uploadDir = __DIR__ . '/../uploads/products/';
-    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-
-    $ext = pathinfo($_FILES['product_image']['name'], PATHINFO_EXTENSION);
-    $fileName = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
-    $target = $uploadDir . $fileName;
-
-    if (move_uploaded_file($_FILES['product_image']['tmp_name'], $target)) {
-        $product_image = $fileName;
+    $upload_result = upload_file($_FILES['product_image'], 'products');
+    
+    if ($upload_result['success']) {
+        $product_image = $upload_result['filename'];
     } else {
-        echo json_encode(['status'=>'error','message'=>'Image upload failed']);
+        echo json_encode([
+            'status' => 'error',
+            'message' => $upload_result['error'] ?? 'Image upload failed'
+        ]);
         exit;
     }
 }
