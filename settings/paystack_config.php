@@ -34,46 +34,98 @@ if (!defined('APP_BASE_URL')) {
     $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 
             (defined('SERVER') ? SERVER : 'localhost');
     
-    // Detect base path from current file location
-    $currentFile = str_replace('\\', '/', __FILE__); // settings/paystack_config.php
+    // Detect base path - prioritize REQUEST_URI as it's most accurate for current request
     $docRoot = isset($_SERVER['DOCUMENT_ROOT']) ? str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']) : '';
+    $scriptName = isset($_SERVER['SCRIPT_NAME']) ? str_replace('\\', '/', $_SERVER['SCRIPT_NAME']) : '';
+    $requestUri = isset($_SERVER['REQUEST_URI']) ? str_replace('\\', '/', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) : '';
+    $currentFile = str_replace('\\', '/', __FILE__);
     
-    if (!empty($docRoot) && strpos($currentFile, $docRoot) !== false) {
-        // File is within document root - extract relative path
-        $relativePath = str_replace($docRoot, '', dirname($currentFile)); // /EASYBUY_Final/settings -> /EASYBUY_Final
-        $relativePath = dirname($relativePath); // Go up one level
-        $basePath = str_replace('\\', '/', $relativePath);
-    } else {
-        // Fallback: use SCRIPT_NAME if available
-        $scriptName = isset($_SERVER['SCRIPT_NAME']) ? str_replace('\\', '/', $_SERVER['SCRIPT_NAME']) : '';
-        if (strpos($scriptName, '/EASYBUY_Final') !== false) {
-            $parts = explode('/EASYBUY_Final', $scriptName);
+    $basePath = '';
+    
+    // Method 1: Extract from REQUEST_URI (most accurate for current page)
+    if (!empty($requestUri)) {
+        if (strpos($requestUri, '/EASYBUY_Final/') !== false) {
+            $parts = explode('/EASYBUY_Final/', $requestUri);
             $basePath = $parts[0] . '/EASYBUY_Final';
-        } else {
-            // Final fallback
+        } elseif ($requestUri === '/EASYBUY_Final' || strpos($requestUri, '/EASYBUY_Final') === 0) {
             $basePath = '/EASYBUY_Final';
         }
     }
     
-    // Normalize and ensure base path is correct
-    $basePath = str_replace('\\', '/', $basePath);
-    $basePath = rtrim($basePath, '/');
-    if (empty($basePath) || $basePath === '/') {
+    // Method 2: Try to extract from SCRIPT_NAME
+    if (empty($basePath) && !empty($scriptName)) {
+        if (strpos($scriptName, '/EASYBUY_Final/') !== false) {
+            $parts = explode('/EASYBUY_Final/', $scriptName);
+            $basePath = $parts[0] . '/EASYBUY_Final';
+        } elseif (strpos($scriptName, '/EASYBUY_Final') === 0) {
+            $basePath = '/EASYBUY_Final';
+        }
+    }
+    
+    // Method 3: If SCRIPT_NAME didn't work, try DOCUMENT_ROOT method
+    if (empty($basePath) && !empty($docRoot) && strpos($currentFile, $docRoot) !== false) {
+        // File is within document root - extract relative path
+        $relativePath = str_replace($docRoot, '', $currentFile);
+        // $relativePath will be like: /EASYBUY_Final/settings/paystack_config.php
+        if (strpos($relativePath, '/EASYBUY_Final/') === 0 || strpos($relativePath, 'EASYBUY_Final/') === 0) {
+            // Extract just the /EASYBUY_Final part
+            if (strpos($relativePath, '/') === 0) {
+                $parts = explode('/', trim($relativePath, '/'));
+            } else {
+                $parts = explode('/', $relativePath);
+            }
+            if (!empty($parts[0]) && $parts[0] === 'EASYBUY_Final') {
+                $basePath = '/EASYBUY_Final';
+            } elseif (!empty($parts[0])) {
+                $basePath = '/' . $parts[0];
+            }
+        }
+    }
+    
+    // Final fallback
+    if (empty($basePath)) {
         $basePath = '/EASYBUY_Final';
     }
+    
+    // Normalize the path
+    $basePath = str_replace('\\', '/', $basePath);
+    $basePath = rtrim($basePath, '/');
     
     // Ensure it starts with /
     if (substr($basePath, 0, 1) !== '/') {
         $basePath = '/' . $basePath;
     }
     
+    // Prevent double paths (e.g., /EASYBUY_Final/EASYBUY_Final)
+    if (strpos($basePath, '/EASYBUY_Final/EASYBUY_Final') !== false) {
+        $basePath = '/EASYBUY_Final';
+    }
+    
+    // Ensure it ends properly
+    if (empty($basePath) || $basePath === '/') {
+        $basePath = '/EASYBUY_Final';
+    }
+    
     define('APP_BASE_URL', $protocol . $host . $basePath);
     
-    // Log for debugging (remove in production)
-    error_log("APP_BASE_URL detected: " . APP_BASE_URL);
+    // Log for debugging
+    error_log("=== BASE URL DETECTION ===");
+    error_log("Protocol: $protocol");
+    error_log("Host: $host");
+    error_log("Document Root: $docRoot");
+    error_log("Script Name: $scriptName");
+    error_log("Request URI: $requestUri");
+    error_log("Current File: $currentFile");
+    error_log("Detected Base Path: $basePath");
+    error_log("Final APP_BASE_URL: " . APP_BASE_URL);
 }
 
-define('PAYSTACK_CALLBACK_URL', APP_BASE_URL . '/view/paystack_callback.php'); // Callback after payment
+// Define callback URL - ensure proper path construction
+if (!defined('PAYSTACK_CALLBACK_URL')) {
+    $callbackPath = rtrim(APP_BASE_URL, '/') . '/view/paystack_callback.php';
+    define('PAYSTACK_CALLBACK_URL', $callbackPath);
+    error_log("PAYSTACK_CALLBACK_URL: " . PAYSTACK_CALLBACK_URL);
+}
 
 /**
  * Initialize a Paystack transaction

@@ -75,6 +75,7 @@ try {
         }
         
         error_log("Paystack transaction initialized successfully - Reference: $reference, Order ID: " . ($order_id > 0 ? $order_id : 'N/A'));
+    error_log("Callback URL sent to Paystack: " . (defined('PAYSTACK_CALLBACK_URL') ? PAYSTACK_CALLBACK_URL : 'NOT DEFINED'));
         
         echo json_encode([
             'status' => 'success',

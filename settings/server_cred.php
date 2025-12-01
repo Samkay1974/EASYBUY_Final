@@ -24,4 +24,11 @@ if (!defined("DATABASE")) {
     // Use the database name from the provided SQL dump
     define("DATABASE", "ecommerce_2025A_samuel_ninson");
 }
+
+// Optional: Manually set the base URL if auto-detection fails
+// Uncomment and set your server's full base URL (including protocol and domain)
+// Example: define('APP_BASE_URL', 'https://yourdomain.com/EASYBUY_Final');
+// if (!defined('APP_BASE_URL')) {
+//     define('APP_BASE_URL', 'https://yourdomain.com/EASYBUY_Final');
+// }
 ?>
