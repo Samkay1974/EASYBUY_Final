@@ -10,13 +10,6 @@ if (file_exists(__DIR__ . '/server_cred.php')) {
     require_once 'db_cred.php';
 }
 
-// Temporary direct override for the Paystack callback URL (Option B)
-// Replace the placeholder below with your real public URL for the deployed app.
-// Example: 'https://yourdomain.com/EASYBUY_Final/view/paystack_callback.php'
-if (!defined('PAYSTACK_CALLBACK_URL')) {
-    define('PAYSTACK_CALLBACK_URL', 'http://169.239.251.102:442/~samuel.ninson/view/paystack_callback.php');
-    error_log("PAYSTACK_CALLBACK_URL (override): " . PAYSTACK_CALLBACK_URL);
-}
 
 // Paystack API Keys
 define('PAYSTACK_SECRET_KEY', 'sk_test_bb2ee86c84ac4da2d80ed76dba13c16e2dad28d8'); // My Test secret key

@@ -31,4 +31,10 @@ if (!defined("DATABASE")) {
 // if (!defined('APP_BASE_URL')) {
 //     define('APP_BASE_URL', 'https://yourdomain.com/EASYBUY_Final');
 // }
+
+// Define the application's public base URL for production/deployment.
+// Set to your hosted URL so automatic detection is not required.
+if (!defined('APP_BASE_URL')) {
+    define('APP_BASE_URL', 'http://169.239.251.102:442/~samuel.ninson');
+}
 ?>
