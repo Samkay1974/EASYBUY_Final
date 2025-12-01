@@ -120,6 +120,5 @@ if(empty($token)){
         </p>
     </form>
 
-    <script src="../js/show_password.js"></script>
 </body>
 </html>

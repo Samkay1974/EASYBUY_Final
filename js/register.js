@@ -1,16 +1,5 @@
 document.getElementById("registerForm").addEventListener("submit", function(e){
     e.preventDefault();
-    // Client-side country validation (if countries.js is loaded)
-    const countryVal = document.getElementById('country') ? document.getElementById('country').value.trim() : '';
-    if (typeof window.isValidCountry === 'function') {
-        if (!window.isValidCountry(countryVal)) {
-            const container = document.getElementById("responseMsg");
-            container.innerHTML = '<span style="color:red;">Please enter a valid country.</span>';
-            document.getElementById('country').focus();
-            return false;
-        }
-    }
-
     const form = document.getElementById('registerForm');
     let formData = new FormData();
     formData.append("full_name", document.getElementById("full_name").value);

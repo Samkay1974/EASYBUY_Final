@@ -1,8 +1,6 @@
 <?php
 
 require_once(__DIR__ . '/../controllers/user_controller.php');
-// Validate country against allowed list
-require_once __DIR__ . '/../settings/countries.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Basic required fields (all fields required per specification)
@@ -35,21 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Server-side country validation
-    $valid_country = false;
-    if (!empty($country) && isset($COUNTRIES) && is_array($COUNTRIES)) {
-        foreach ($COUNTRIES as $ct) {
-            if (strcasecmp(trim($ct), trim($country)) === 0) {
-                $valid_country = true;
-                break;
-            }
-        }
-    }
-    if (!$valid_country) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Please enter a valid country.']);
-        exit;
-    }
+    
 
     $result = register_customer_controller(
         $full_name,
