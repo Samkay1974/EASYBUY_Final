@@ -27,14 +27,14 @@ session_start();
         <div class="form-container">
             <h2>Login</h2>
             <form action="../actions/login_action.php" method="POST">
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">Email</label>
-                    <input type="email" name="email" class="form-control" required>
+                <div class="form-field">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
                 </div>
 
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">Password</label>
-                    <input type="password" name="password" class="form-control" required>
+                <div class="form-field">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
                 </div>
 
                 <button type="submit" class="btn-primary">Login</button>

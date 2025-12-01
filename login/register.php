@@ -46,50 +46,56 @@ if (!empty($_SESSION['register_success'])) {
                     <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
                 <?php endif; ?>
 
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">Full Name</label>
-                    <input id="full_name" type="text" name="full_name" class="form-control" required>
+                <div class="form-field">
+                    <label for="full_name" class="form-label">Full Name</label>
+                    <input id="full_name" type="text" name="full_name" class="form-input" placeholder="Enter your full name" required>
                 </div>
 
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">Email</label>
-                    <input id="customer_email" type="email" name="customer_email" class="form-control" required>
+                <div class="form-field">
+                    <label for="customer_email" class="form-label">Email</label>
+                    <input id="customer_email" type="email" name="customer_email" class="form-input" placeholder="Enter your email" required>
                 </div>
 
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">City</label>
-                    <input id="city" type="text" name="city" class="form-control" required>
+                <div class="form-field">
+                    <label for="city" class="form-label">City</label>
+                    <input id="city" type="text" name="city" class="form-input" placeholder="Enter your city" required>
                 </div>
 
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">Country</label>
-                    <input id="country" type="text" name="country" class="form-control" required>
+                <div class="form-field">
+                    <label for="country" class="form-label">Country</label>
+                    <input id="country" type="text" name="country" class="form-input" placeholder="Enter your country" required>
                 </div>
 
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">Phone number</label>
-                    <input id="phone_number" type="text" name="phone_number" class="form-control" required>
+                <div class="form-field">
+                    <label for="phone_number" class="form-label">Phone Number</label>
+                    <input id="phone_number" type="text" name="phone_number" class="form-input" placeholder="Enter your phone number" required>
                 </div>
 
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">Password</label>
-                    <input id="password" type="password" name="password" class="form-control" required>
+                <div class="form-field">
+                    <label for="password" class="form-label">Password</label>
+                    <input id="password" type="password" name="password" class="form-input" placeholder="Create a password" required>
                 </div>
 
-                <div class="input-group mb-3">
-                    <label class="form-label me-2">Confirm Password</label>
-                    <input id="confirm_password" type="password" name="confirm_password" class="form-control" required>
+                <div class="form-field">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input id="confirm_password" type="password" name="confirm_password" class="form-input" placeholder="Confirm your password" required>
                 </div>
 
-                <div class="input-group">
-                    <label>User type</label>
+                <div class="form-field">
+                    <label class="form-label">User Type</label>
                     <div class="radio-group">
-                        <label><input type="radio" name="user_role" value="0" checked required> Customer</label>
-                        <label><input type="radio" name="user_role" value="1"> Wholesaler</label>
+                        <label class="radio-option">
+                            <input type="radio" name="user_role" value="0" checked required>
+                            <span>Customer</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="user_role" value="1">
+                            <span>Wholesaler</span>
+                        </label>
                     </div>
                 </div>
 
-                <div id="responseMsg" class="input-group"></div>
+                <div id="responseMsg" class="form-field"></div>
 
                 <button type="submit" class="btn-primary">Register</button>
             </form>
