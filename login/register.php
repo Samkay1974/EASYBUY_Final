@@ -98,5 +98,23 @@ if (!empty($_SESSION['register_success'])) {
         <p>© 2025 EasyBuy. All rights reserved.</p>
     </footer>
     <script src="../js/register.js"></script>
+    <script src="../js/countries.js"></script>
+    <script src="../js/show_password.js"></script>
+    <script>
+    // Client-side validation: ensure country exists before submit
+    document.getElementById('registerForm').addEventListener('submit', function(e){
+        const countryInput = document.getElementById('country');
+        if (countryInput) {
+            const val = countryInput.value.trim();
+            if (!window.isValidCountry(val)) {
+                e.preventDefault();
+                const container = document.getElementById('responseMsg');
+                container.innerHTML = '<span style="color:red;">Please enter a valid country name.</span>';
+                countryInput.focus();
+                return false;
+            }
+        }
+    });
+    </script>
 </body>
 </html>
