@@ -170,8 +170,20 @@ $cartItemCount = isLoggedIn() ? get_cart_item_count_ctr() : 0;
                     if ($collab_order && $collab_order['payment_status'] == 'pending') {
                         $member_payment = get_member_payment_status_ctr($collab_order['order_id'], $user_id);
                         if (!$member_payment || $member_payment['payment_status'] != 'paid') {
-                            $has_pending_collab_payment = true;
-                            break;
+                      // Only count this pending collaboration payment if the order's product
+                      // is not already present in the user's cart (avoid double-counting)
+                      $order_details = get_order_details_ctr($collab_order['order_id']);
+                      $count_collab = true;
+                      foreach ($order_details as $od) {
+                        if (get_cart_item_quantity_ctr($od['product_id']) > 0) {
+                          $count_collab = false;
+                          break;
+                        }
+                      }
+                      if ($count_collab) {
+                        $has_pending_collab_payment = true;
+                      }
+                      break;
                         }
                     }
                 }
