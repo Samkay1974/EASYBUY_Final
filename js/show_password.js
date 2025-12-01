@@ -1,90 +1,75 @@
 // show_password.js - attach toggle buttons to password inputs
 document.addEventListener('DOMContentLoaded', function() {
-  // Small inline SVG icons (eye / eye-slash)
-  const EYE = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2.5 12s4.5-7 9.5-7 9.5 7 9.5 7-4.5 7-9.5 7-9.5-7-9.5-7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const EYE_SLASH = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 3l18 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.477 10.477A3 3 0 0 0 13.523 13.523" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 12s4.5-7 9.5-7c2.03 0 3.88.57 5.36 1.53" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.5 12s-1.77 2.76-4.66 4.63" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // Enhance password inputs with a single, non-duplicating toggle button
   function enhancePasswordInput(input) {
-    if (!input || input.dataset.toggleEnhanced) return;
-    // Mark as processed to avoid duplicates
-  input.dataset.toggleEnhanced = '1';
+    if (!input || input.dataset.showToggleAttached === '1') return;
 
-  // Create container wrapper
-  const wrapper = document.createElement('div');
-  wrapper.className = 'input-with-toggle';
-  // Preserve parent and placement
-  const parent = input.parentNode;
-  parent.replaceChild(wrapper, input);
-  wrapper.appendChild(input);
-  // Create toggle button
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'toggle-pass-btn';
-  btn.setAttribute('aria-label', 'Show password');
-  btn.innerHTML = EYE;
-  wrapper.appendChild(btn);
+    // Mark as attached to avoid duplicates
+    input.dataset.showToggleAttached = '1';
 
-  // Toggle handler
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      if (input.type === 'password') {
-        btn.innerHTML = EYE_SLASH;
-        btn.setAttribute('aria-label', 'Hide password');
-      } else {
-  input.type = 'password';
-  btn.innerHTML = EYE;
-  btn.setAttribute('aria-label', 'Show password');
-      // Keep focus in input
-      input.focus();
-    });
-    // Accessibility: toggle via keyboard when focused on button
-    btn.addEventListener('keydown', function(ev) {
-      if (ev.key === 'Enter' || ev.key === ' ') {
-        ev.preventDefault();
-        btn.click();
-      }
-    });
-  }
+    // Prefer to use Bootstrap input-group if available
+    const parent = input.parentNode;
+    let group = parent.classList && parent.classList.contains('input-group') ? parent : null;
 
-  // Enhance all password inputs on page, but only once per input
-  const passInputs = document.querySelectorAll('input[type="password"]');
-  passInputs.forEach(i => enhancePasswordInput(i));
-});
-// show_password.js - attach toggle buttons to password inputs
-document.addEventListener('DOMContentLoaded', function() {
-  function attachToggle(input) {
-    if (!input) return;
-    // Create toggle button
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn btn-sm btn-outline-secondary ms-2 show-pass-toggle';
-    btn.innerHTML = 'Show';
-    btn.addEventListener('click', function(e) {
+    if (!group) {
+      // Create input-group and replace input
+      group = document.createElement('div');
+      group.className = 'input-group';
+      parent.replaceChild(group, input);
+      group.appendChild(input);
+    }
+
+    // If a toggle already exists next to this input, skip
+    if (group.querySelector('.show-pass-toggle')) return;
+
+    // Create button wrapper and button
+    const btnWrapper = document.createElement('button');
+    btnWrapper.type = 'button';
+    btnWrapper.className = 'btn btn-outline-secondary show-pass-toggle';
+    btnWrapper.title = 'Show password';
+    btnWrapper.setAttribute('aria-label', 'Toggle password visibility');
+    btnWrapper.innerHTML = '<i class="fa fa-eye"></i>';
+
+    btnWrapper.addEventListener('click', function(e) {
       e.preventDefault();
       if (input.type === 'password') {
         input.type = 'text';
-        btn.innerHTML = 'Hide';
+        btnWrapper.innerHTML = '<i class="fa fa-eye-slash"></i>';
+        btnWrapper.title = 'Hide password';
       } else {
         input.type = 'password';
-        btn.innerHTML = 'Show';
+        btnWrapper.innerHTML = '<i class="fa fa-eye"></i>';
+        btnWrapper.title = 'Show password';
       }
       input.focus();
     });
 
-    // Insert after the input
-    const wrapper = document.createElement('div');
-    wrapper.className = 'd-flex align-items-center';
-    input.parentNode.insertBefore(wrapper, input);
-    wrapper.appendChild(input);
-    wrapper.appendChild(btn);
+    // Create input-group-append container if not present (Bootstrap 5 uses input-group-append style via wrapper)
+    const appendSpan = document.createElement('span');
+    appendSpan.className = 'input-group-text p-0';
+    appendSpan.style.border = '0';
+    appendSpan.appendChild(btnWrapper);
+
+    // Append the toggle to the input group
+    group.appendChild(appendSpan);
   }
 
-  // Attach to login password
-  const loginPass = document.querySelector('input[name="password"]');
-  if (loginPass) attachToggle(loginPass);
+  // Find password fields by common selectors
+  const selectors = [
+    'input[type="password"]',
+    'input[name="password"]',
+    '#password',
+    '#confirm_password'
+  ];
 
-  // Attach to register password fields (by IDs)
-  const regPass = document.getElementById('password');
-  const regConfirm = document.getElementById('confirm_password');
-  if (regPass) attachToggle(regPass);
-  if (regConfirm) attachToggle(regConfirm);
+  const seen = new Set();
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(input => {
+      // Avoid enhancing the same element multiple times
+      if (!seen.has(input)) {
+        enhancePasswordInput(input);
+        seen.add(input);
+      }
+    });
+  });
 });

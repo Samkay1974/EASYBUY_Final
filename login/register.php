@@ -20,6 +20,9 @@ if (!empty($_SESSION['register_success'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - EasyBuy</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <!-- Bootstrap + FontAwesome for improved form controls -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
@@ -43,39 +46,39 @@ if (!empty($_SESSION['register_success'])) {
                     <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
                 <?php endif; ?>
 
-                <div class="input-group">
-                    <label>Full Name</label>
-                    <input id="full_name" type="text" name="full_name" required>
+                <div class="input-group mb-3">
+                    <label class="form-label me-2">Full Name</label>
+                    <input id="full_name" type="text" name="full_name" class="form-control" required>
                 </div>
 
-                <div class="input-group">
-                    <label>Email</label>
-                    <input id="customer_email" type="email" name="customer_email" required>
+                <div class="input-group mb-3">
+                    <label class="form-label me-2">Email</label>
+                    <input id="customer_email" type="email" name="customer_email" class="form-control" required>
                 </div>
 
-                <div class="input-group">
-                    <label>City</label>
-                    <input id="city" type="text" name="city" required>
+                <div class="input-group mb-3">
+                    <label class="form-label me-2">City</label>
+                    <input id="city" type="text" name="city" class="form-control" required>
                 </div>
 
-                <div class="input-group">
-                    <label>Country</label>
-                    <input id="country" type="text" name="country" required>
+                <div class="input-group mb-3">
+                    <label class="form-label me-2">Country</label>
+                    <input id="country" type="text" name="country" class="form-control" required>
                 </div>
 
-                <div class="input-group">
-                    <label>Phone number</label>
-                    <input id="phone_number" type="text" name="phone_number" required>
+                <div class="input-group mb-3">
+                    <label class="form-label me-2">Phone number</label>
+                    <input id="phone_number" type="text" name="phone_number" class="form-control" required>
                 </div>
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input id="password" type="password" name="password" required>
+                <div class="input-group mb-3">
+                    <label class="form-label me-2">Password</label>
+                    <input id="password" type="password" name="password" class="form-control" required>
                 </div>
 
-                <div class="input-group">
-                    <label>Confirm Password</label>
-                    <input id="confirm_password" type="password" name="confirm_password" required>
+                <div class="input-group mb-3">
+                    <label class="form-label me-2">Confirm Password</label>
+                    <input id="confirm_password" type="password" name="confirm_password" class="form-control" required>
                 </div>
 
                 <div class="input-group">
@@ -100,21 +103,5 @@ if (!empty($_SESSION['register_success'])) {
     <script src="../js/register.js"></script>
     <script src="../js/countries.js"></script>
     <script src="../js/show_password.js"></script>
-    <script>
-    // Client-side validation: ensure country exists before submit
-    document.getElementById('registerForm').addEventListener('submit', function(e){
-        const countryInput = document.getElementById('country');
-        if (countryInput) {
-            const val = countryInput.value.trim();
-            if (!window.isValidCountry(val)) {
-                e.preventDefault();
-                const container = document.getElementById('responseMsg');
-                container.innerHTML = '<span style="color:red;">Please enter a valid country name.</span>';
-                countryInput.focus();
-                return false;
-            }
-        }
-    });
-    </script>
 </body>
 </html>

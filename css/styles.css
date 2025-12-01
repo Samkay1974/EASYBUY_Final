@@ -211,37 +211,3 @@ body {
 #messageModalBody {
     font-size: 16px;
 }
-
-/* Password toggle styling */
-.input-with-toggle {
-    position: relative;
-}
-.input-with-toggle input[type="password"],
-.input-with-toggle input[type="text"] {
-    padding-right: 44px; /* leave space for the toggle */
-}
-.toggle-pass-btn {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: none;
-    background: transparent;
-    color: #666;
-    padding: 6px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-}
-.toggle-pass-btn:hover {
-    background: rgba(0,0,0,0.04);
-}
-.toggle-pass-btn:focus {
-    outline: 2px solid rgba(0,86,179,0.16);
-}
-.toggle-pass-btn svg {
-    width: 18px;
-    height: 18px;
-}
