@@ -32,8 +32,34 @@ if(!$result){
     exit;
 }
 
-// Send reset link (local XAMPP)
-$resetLink = "http://localhost/EASYBUY_Final/view/reset_password.php?token=$token";
+// Dynamically generate reset link based on server environment
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) ? "https://" : "http://";
+$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+
+// Get base path from script location
+$scriptName = isset($_SERVER['SCRIPT_NAME']) ? str_replace('\\', '/', $_SERVER['SCRIPT_NAME']) : '';
+$docRoot = isset($_SERVER['DOCUMENT_ROOT']) ? str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']) : '';
+
+// Extract base path
+if (strpos($scriptName, '/EASYBUY_Final') !== false) {
+    $parts = explode('/EASYBUY_Final', $scriptName);
+    $basePath = $parts[0] . '/EASYBUY_Final';
+} else {
+    // Try to detect from current file location
+    $currentFile = str_replace('\\', '/', __DIR__);
+    if (!empty($docRoot) && strpos($currentFile, $docRoot) !== false) {
+        $relativePath = str_replace($docRoot, '', $currentFile);
+        $basePath = dirname(dirname($relativePath));
+        if (strpos($basePath, '/EASYBUY_Final') === false) {
+            $basePath = '/EASYBUY_Final';
+        }
+    } else {
+        $basePath = '/EASYBUY_Final';
+    }
+}
+
+$basePath = rtrim($basePath, '/');
+$resetLink = $protocol . $host . $basePath . "/view/reset_password.php?token=$token";
 
 // In production, use proper email sending
 // For now, we'll just show the link (for development)

@@ -19,7 +19,7 @@ $reference = isset($_GET['reference']) ? trim($_GET['reference']) : null;
 
 if (!$reference) {
     // Payment cancelled or reference missing
-    header('Location: checkout.php?error=cancelled');
+    header('Location: ../actions/checkout.php?error=cancelled');
     exit();
 }
 
@@ -153,7 +153,7 @@ error_log("Reference from URL: $reference");
                 
                 // Redirect after 5 seconds
                 setTimeout(() => {
-                    window.location.href = 'checkout.php?error=connection_error';
+                    window.location.href = '../actions/checkout.php?error=connection_error';
                 }, 5000);
             }
         }
