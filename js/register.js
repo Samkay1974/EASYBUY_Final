@@ -1,13 +1,23 @@
 document.getElementById("registerForm").addEventListener("submit", function(e){
     e.preventDefault();
     const form = document.getElementById('registerForm');
+    const countryInput = document.getElementById("country");
+    
+    // Validate country
+    if (!countryInput.classList.contains('valid')) {
+        const responseMsg = document.getElementById("responseMsg");
+        responseMsg.innerHTML = '<span style="color:red;">Please enter a valid country from the suggestions.</span>';
+        countryInput.focus();
+        return;
+    }
+    
     let formData = new FormData();
     formData.append("full_name", document.getElementById("full_name").value);
     formData.append("customer_email", document.getElementById("customer_email").value);
     formData.append("password", document.getElementById("password").value);
     formData.append("confirm_password", document.getElementById("confirm_password").value);
     formData.append("city", document.getElementById("city").value);
-    formData.append("country", document.getElementById("country").value);
+    formData.append("country", countryInput.value.trim());
     formData.append("phone_number", document.getElementById("phone_number").value);
     const roleEl = document.querySelector('input[name="user_role"]:checked');
     formData.append("user_role", roleEl ? roleEl.value : '0');

@@ -9,8 +9,6 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - EasyBuy</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <!-- Bootstrap CSS (CDN) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
@@ -25,14 +23,14 @@ session_start();
         <div class="form-container">
             <h2>Login</h2>
             <form action="../actions/login_action.php" method="POST">
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" name="email" required>
+                <div class="form-field">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
                 </div>
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" name="password" required>
+                <div class="form-field">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
                 </div>
 
                 <button type="submit" class="btn-primary">Login</button>
@@ -64,5 +62,6 @@ session_start();
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="../js/login.js"></script>
+        <script src="../js/show_password.js"></script>
 </body>
 </html>

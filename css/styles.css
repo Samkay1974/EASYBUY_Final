@@ -124,6 +124,12 @@ body {
     width: 100%;
 }
 
+/* Make register form container slightly wider */
+body:has(#registerForm) .form-container,
+.register-form-container {
+    max-width: 480px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
     .form-container {
@@ -388,8 +394,163 @@ form {
     position: relative;
 }
 
-/* Add right padding to password inputs to make room for button */
-input[type="password"].form-input,
-.form-input[type="password"] {
-    padding-right: 45px !important;
+/* Register form wider container */
+.form-section .form-container {
+    max-width: 480px;
+}
+
+/* Show Password Checkbox Styling */
+.show-password-wrapper {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.show-password-checkbox {
+    display: none;
+}
+
+.show-password-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.show-password-label:hover {
+    color: #0056b3;
+}
+
+.checkbox-tick {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    font-size: 12px;
+    color: transparent;
+    flex-shrink: 0;
+}
+
+.show-password-checkbox:checked + .show-password-label .checkbox-tick {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: #fff;
+}
+
+.show-password-label.checked {
+    color: #0056b3;
+}
+
+.show-password-checkbox:focus + .show-password-label .checkbox-tick {
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+}
+
+/* Country Dropdown Styling */
+.country-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.country-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+    color: #333;
+}
+
+.country-item:hover,
+.country-item.highlighted {
+    background-color: #f0f7ff;
+    color: #0056b3;
+}
+
+.country-item.no-results {
+    color: #999;
+    cursor: default;
+    font-style: italic;
+}
+
+.country-item.no-results:hover {
+    background-color: transparent;
+}
+
+/* Country input validation states */
+.form-input.valid {
+    border-color: #28a745;
+}
+
+.form-input.invalid {
+    border-color: #dc3545;
+}
+
+.form-input.valid:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+.form-input.invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.field-hint {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+
+/* Fix input group for backward compatibility */
+.input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background-color: #fff;
+    color: #333;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
 }
