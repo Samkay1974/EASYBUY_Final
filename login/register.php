@@ -20,6 +20,7 @@ if (!empty($_SESSION['register_success'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - EasyBuy</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
@@ -104,6 +105,25 @@ if (!empty($_SESSION['register_success'])) {
     <footer class="footer">
         <p>© 2025 EasyBuy. All rights reserved.</p>
     </footer>
+    
+    <!-- Message Modal (used for both success and error) -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-sm">
+                <div class="modal-header align-items-center" id="messageModalHeader">
+                    <div id="messageModalIcon" class="me-2"></div>
+                    <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4" id="messageModalBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="messageModalOk">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/register.js"></script>
     <script src="../js/countries.js"></script>
     <script src="../js/show_password.js"></script>
