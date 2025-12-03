@@ -1,9 +1,9 @@
-// countries.js - Country validation and autocomplete
+
 document.addEventListener('DOMContentLoaded', function() {
   const countryInput = document.getElementById('country');
   if (!countryInput) return;
 
-  // Comprehensive list of countries
+
   const countries = [
     'Afghanistan', 'Albania', 'Algeria', 'Argentina', 'Australia', 'Austria',
     'Bahrain', 'Bangladesh', 'Belgium', 'Brazil', 'Bulgaria', 'Burkina Faso',

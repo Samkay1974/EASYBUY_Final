@@ -33,6 +33,13 @@ session_start();
                     <label for="password" class="form-label">Password</label>
                     <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
                 </div>
+                <div class="form-field">
+                    <label class="show-password-wrapper" for="showPassword">
+                        <input type="checkbox" id="showPassword" class="show-password-checkbox" onchange="togglePassword()">
+                        <span class="checkbox-tick">✓</span>
+                        <span class="show-password-text">Show Password</span>
+                    </label>
+                </div>
 
                 <button type="submit" class="btn-primary">Login</button>
             </form>
@@ -60,9 +67,18 @@ session_start();
                 </div>
             </div>
         </div>
+ <script>
+        function togglePassword() {
+    let pwd = document.getElementById("password");
+    if (pwd) {
+        pwd.type = pwd.type === "password" ? "text" : "password";
+    }
+}
+</script>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../js/login.js"></script>
-        <script src="../js/show_password.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/login.js"></script>
+        
 </body>
 </html>

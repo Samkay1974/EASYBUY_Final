@@ -20,10 +20,7 @@ class Cart extends db_connection
     public function loadCartFromDatabase($user_id)
     {
         try {
-            if (!$this->db_connect() || !$this->db) {
-                error_log("Error: Database connection failed in loadCartFromDatabase");
-                return false;
-            }
+            $this->db_connect();
             $sql = "SELECT product_id, quantity FROM cart_items WHERE user_id = :user_id";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([':user_id' => $user_id]);
@@ -38,9 +35,6 @@ class Cart extends db_connection
         } catch (PDOException $e) {
             error_log("Error loading cart from database: " . $e->getMessage());
             return false;
-        } catch (Exception $e) {
-            error_log("Error in loadCartFromDatabase: " . $e->getMessage());
-            return false;
         }
     }
 
@@ -54,10 +48,7 @@ class Cart extends db_connection
         }
         
         try {
-            if (!$this->db_connect() || !$this->db) {
-                error_log("Error: Database connection failed in saveCartToDatabase");
-                return false;
-            }
+            $this->db_connect();
             $this->initCart();
             
             // Delete existing cart items for this user
@@ -84,57 +75,16 @@ class Cart extends db_connection
         } catch (PDOException $e) {
             error_log("Error saving cart to database: " . $e->getMessage());
             return false;
-        } catch (Exception $e) {
-            error_log("Error in saveCartToDatabase: " . $e->getMessage());
-            return false;
         }
     }
 
     /**
      * Add product to cart
      */
-    public function addToCart($product_id, $quantity = 1, $target_user_id = null)
+    public function addToCart($product_id, $quantity = 1)
     {
         $this->initCart();
         
-        // If target_user_id is provided, add directly to database for that user
-        if ($target_user_id) {
-            try {
-                if (!$this->db_connect() || !$this->db) {
-                    return false;
-                }
-                
-                // Check if item already exists
-                $check_sql = "SELECT quantity FROM cart_items WHERE user_id = :user_id AND product_id = :product_id";
-                $check_stmt = $this->db->prepare($check_sql);
-                $check_stmt->execute([':user_id' => $target_user_id, ':product_id' => $product_id]);
-                $existing = $check_stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($existing) {
-                    // Update quantity
-                    $update_sql = "UPDATE cart_items SET quantity = quantity + :qty, updated_at = NOW() WHERE user_id = :user_id AND product_id = :product_id";
-                    $update_stmt = $this->db->prepare($update_sql);
-                    $update_stmt->execute([':user_id' => $target_user_id, ':product_id' => $product_id, ':qty' => $quantity]);
-                } else {
-                    // Insert new item
-                    $insert_sql = "INSERT INTO cart_items (user_id, product_id, quantity, created_at, updated_at) 
-                                 VALUES (:user_id, :product_id, :quantity, NOW(), NOW())";
-                    $insert_stmt = $this->db->prepare($insert_sql);
-                    $insert_stmt->execute([
-                        ':user_id' => $target_user_id,
-                        ':product_id' => $product_id,
-                        ':quantity' => $quantity
-                    ]);
-                }
-                
-                return true;
-            } catch (PDOException $e) {
-                error_log("Error adding to cart for user: " . $e->getMessage());
-                return false;
-            }
-        }
-        
-        // Default behavior: add to current session user's cart
         if (isset($_SESSION['cart'][$product_id])) {
             $_SESSION['cart'][$product_id] += $quantity;
         } else {
@@ -190,18 +140,15 @@ class Cart extends db_connection
             if (isLoggedIn()) {
                 $user_id = get_user_id();
                 try {
-                    if ($this->db_connect() && $this->db) {
-                        $sql = "DELETE FROM cart_items WHERE user_id = :user_id AND product_id = :product_id";
-                        $stmt = $this->db->prepare($sql);
-                        $stmt->execute([
-                            ':user_id' => $user_id,
-                            ':product_id' => $product_id
-                        ]);
-                    }
+                    $this->db_connect();
+                    $sql = "DELETE FROM cart_items WHERE user_id = :user_id AND product_id = :product_id";
+                    $stmt = $this->db->prepare($sql);
+                    $stmt->execute([
+                        ':user_id' => $user_id,
+                        ':product_id' => $product_id
+                    ]);
                 } catch (PDOException $e) {
                     error_log("Error removing cart item from database: " . $e->getMessage());
-                } catch (Exception $e) {
-                    error_log("Error in removeFromCart database operation: " . $e->getMessage());
                 }
             }
             
@@ -257,7 +204,7 @@ class Cart extends db_connection
                         'product_image' => $productDetails['product_image'],
                         'brand_name' => $productDetails['brand_name'] ?? 'N/A',
                         'cat_name' => $productDetails['cat_name'] ?? 'N/A',
-                        'wholesale_price' => $moq_price,
+                        'wholesale_price' => $unit_price,
                         'moq' => $moq,
                         'moq_quantity' => $moq_quantity, // Number of MOQ units
                         'actual_units' => $actual_units, // Total actual units
@@ -337,15 +284,12 @@ class Cart extends db_connection
         if (isLoggedIn()) {
             $user_id = get_user_id();
             try {
-                if ($this->db_connect() && $this->db) {
-                    $sql = "DELETE FROM cart_items WHERE user_id = :user_id";
-                    $stmt = $this->db->prepare($sql);
-                    $stmt->execute([':user_id' => $user_id]);
-                }
+                $this->db_connect();
+                $sql = "DELETE FROM cart_items WHERE user_id = :user_id";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute([':user_id' => $user_id]);
             } catch (PDOException $e) {
                 error_log("Error clearing cart from database: " . $e->getMessage());
-            } catch (Exception $e) {
-                error_log("Error in clearCart database operation: " . $e->getMessage());
             }
         }
         

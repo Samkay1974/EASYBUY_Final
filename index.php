@@ -1,5 +1,4 @@
 <?php
-// index.php - Landing page for EasyBuy
 ?>
 <!DOCTYPE html>
 <html lang="en">

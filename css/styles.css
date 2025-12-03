@@ -1,4 +1,4 @@
-/* styles.css - EasyBuy Platform Styling */
+
 
 body {
     margin: 0;
@@ -151,7 +151,6 @@ body:has(#registerForm) .form-container,
     font-weight: 600;
 }
 
-/* Modern Form Field Styling */
 .form-field {
     margin-bottom: 20px;
     position: relative;
@@ -310,7 +309,6 @@ body:has(#registerForm) .form-container,
     font-size: 14px;
 }
 
-/* Modal enhancements for platform messaging - Modern & Structured */
 #messageModal {
     z-index: 1055;
 }
@@ -561,29 +559,23 @@ form {
 
 /* Show Password Checkbox Styling */
 .show-password-wrapper {
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.show-password-checkbox {
-    display: none;
-}
-
-.show-password-label {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     cursor: pointer;
     font-size: 14px;
     color: #666;
     user-select: none;
     transition: color 0.2s ease;
+    margin-top: 5px;
 }
 
-.show-password-label:hover {
+.show-password-wrapper:hover {
     color: #0056b3;
+}
+
+.show-password-checkbox {
+    display: none;
 }
 
 .checkbox-tick {
@@ -597,22 +589,33 @@ form {
     background-color: #fff;
     transition: all 0.2s ease;
     font-size: 12px;
+    font-weight: bold;
     color: transparent;
     flex-shrink: 0;
 }
 
-.show-password-checkbox:checked + .show-password-label .checkbox-tick {
+.show-password-checkbox:checked ~ .checkbox-tick {
     background-color: #0056b3;
     border-color: #0056b3;
     color: #fff;
 }
 
-.show-password-label.checked {
+.show-password-checkbox:checked ~ .show-password-text {
     color: #0056b3;
+    font-weight: 500;
 }
 
-.show-password-checkbox:focus + .show-password-label .checkbox-tick {
+.show-password-text {
+    transition: color 0.2s ease;
+    font-size: 14px;
+}
+
+.show-password-checkbox:focus ~ .checkbox-tick {
     box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+}
+
+.show-password-wrapper:hover .checkbox-tick {
+    border-color: #0056b3;
 }
 
 /* Country Dropdown Styling */
